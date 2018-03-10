@@ -1,6 +1,30 @@
 {
   "expo": {
+    "name": "Tax’n Tip",
+    "description": "Calculate taxes and tips in Québec, Canada",
+    "privacy": "public",
+    "icon": "./assets/taxntip.png",
+    "slug": "taxntip",
     "sdkVersion": "25.0.0",
-    "primaryColor": "#cccccc"
+    "primaryColor": "#1565c0",
+    "loading": {
+      "backgroundColor": "#1565c0",
+      "icon": "./assets/taxntip.png"
+    },
+    "androidStatusBarColor": "#1565c0",
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#03a9f4"
+    },
+    "ios": {
+      "bundleIdentifier": "me.castiel.taxntip",
+      "buildNumber": "1",
+      "icon": "./assets/icons/ios/iTunesArtwork@3x.png",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "me.castiel.taxntip",
+      "versionCode": 1
+    }
   }
 }
