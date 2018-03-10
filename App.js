@@ -1,15 +1,29 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { Provider as PaperProvider, TextInput } from 'react-native-paper'
+import { StyleSheet, Text, View, StatusBar } from 'react-native'
+import {
+  DefaultTheme,
+  Provider as PaperProvider,
+  TextInput,
+  Colors
+} from 'react-native-paper'
 import Main from './src/Main'
 
-export default class App extends React.Component {
-  state = {
-    text: 'hello'
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: Colors.blue800
   }
+}
+
+export default class App extends React.Component {
+  componentDidMount() {
+    StatusBar.setBarStyle('light-content')
+  }
+
   render() {
     return (
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <Main />
       </PaperProvider>
     )

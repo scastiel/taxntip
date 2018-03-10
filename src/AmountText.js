@@ -9,8 +9,9 @@ class AmountText extends Component {
 
   render() {
     const { amount, ...props } = this.props
-    const formattedAmount = amount.toLocaleString(undefined, {
+    const formattedAmount = amount.toLocaleString('fr-CA', {
       currency: 'CAD',
+      currencyDisplay: 'symbol',
       style: 'currency'
     })
     return <Text {...props}>{formattedAmount}</Text>
