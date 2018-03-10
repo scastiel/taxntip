@@ -14,7 +14,8 @@ import {
   RadioButton,
   Caption,
   Divider,
-  Colors
+  Colors,
+  Paper
 } from 'react-native-paper'
 import AmountText from './AmountText'
 
@@ -51,70 +52,74 @@ class Main extends Component {
     return (
       <Fragment>
         <Toolbar>
-          <ToolbarContent title="Tax’n tip" />
+          <ToolbarContent
+            title="Taxes et pourboires"
+            subtitle="Québec, Canada"
+          />
         </Toolbar>
         <View style={styles.container}>
-          <TouchableRipple
-            onPress={() =>
-              this.state.editMode || this.setState({ editMode: true })
-            }
-          >
+          <Paper style={styles.paper}>
+            <TouchableRipple
+              onPress={() =>
+                this.state.editMode || this.setState({ editMode: true })
+              }
+            >
+              <View style={styles.row}>
+                <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
+                {editMode ? (
+                  <Fragment>
+                    <TextInput
+                      ref={ref => {
+                        if (ref) {
+                          ref.focus()
+                        }
+                      }}
+                      value={amountText}
+                      keyboardType="numeric"
+                      returnKeyType="done"
+                      onChangeText={text => this.setState({ amountText: text })}
+                      onBlur={() => this.updateAmount()}
+                      style={styles.amountInput}
+                    />
+                    <Text style={styles.currency}> $</Text>
+                  </Fragment>
+                ) : (
+                  <AmountText style={styles.amount} amount={amount} />
+                )}
+              </View>
+            </TouchableRipple>
+            <Divider />
             <View style={styles.row}>
-              <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
-              {editMode ? (
-                <Fragment>
-                  <TextInput
-                    ref={ref => {
-                      if (ref) {
-                        ref.focus()
-                      }
-                    }}
-                    value={amountText}
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                    onChangeText={text => this.setState({ amountText: text })}
-                    onBlur={() => this.updateAmount()}
-                    style={styles.amountInput}
-                  />
-                  <Text style={styles.currency}> $</Text>
-                </Fragment>
-              ) : (
-                <AmountText style={styles.amount} amount={amount} />
-              )}
+              <Paragraph style={styles.secondaryLabel}>Taxes (15 %)</Paragraph>
+              <AmountText
+                style={styles.secondaryAmount}
+                amount={this.getTaxes()}
+              />
             </View>
-          </TouchableRipple>
-          <Divider />
-          <View style={styles.row}>
-            <Paragraph style={styles.secondaryLabel}>Taxes (15 %)</Paragraph>
-            <AmountText
-              style={styles.secondaryAmount}
-              amount={this.getTaxes()}
-            />
-          </View>
-          {tip > 0 && (
-            <Fragment>
-              <Divider />
-              <TouchableRipple
-                onPress={() => this.setState({ tipModalVisible: true })}
-              >
-                <View style={styles.row}>
-                  <Paragraph style={styles.secondaryLabel}>
-                    Pourboire ({tip * 100} %)
-                  </Paragraph>
-                  <AmountText
-                    style={styles.secondaryAmount}
-                    amount={this.getTip()}
-                  />
-                </View>
-              </TouchableRipple>
-            </Fragment>
-          )}
-          <Divider />
-          <View style={styles.row}>
-            <Paragraph style={styles.label}>Prix total</Paragraph>
-            <AmountText style={styles.amount} amount={this.getNetPrice()} />
-          </View>
-          <Divider />
+            {tip > 0 && (
+              <Fragment>
+                <Divider />
+                <TouchableRipple
+                  onPress={() => this.setState({ tipModalVisible: true })}
+                >
+                  <View style={styles.row}>
+                    <Paragraph style={styles.secondaryLabel}>
+                      Pourboire ({tip * 100} %)
+                    </Paragraph>
+                    <AmountText
+                      style={styles.secondaryAmount}
+                      amount={this.getTip()}
+                    />
+                  </View>
+                </TouchableRipple>
+              </Fragment>
+            )}
+            <Divider />
+            <View style={styles.row}>
+              <Paragraph style={styles.label}>Prix total</Paragraph>
+              <AmountText style={styles.amount} amount={this.getNetPrice()} />
+            </View>
+          </Paper>
           {tip === 0 && (
             <Button
               primary
@@ -164,6 +169,11 @@ const fontProps = {
   fontSize: 18
 }
 
+const amountFontProps = {
+  fontFamily: 'Menlo',
+  fontSize: 18
+}
+
 const labelProps = {
   flex: 1,
   ...fontProps
@@ -172,7 +182,7 @@ const labelProps = {
 const amountProps = {
   textAlign: 'right',
   width: 100,
-  ...fontProps
+  ...amountFontProps
 }
 
 const secondaryProps = {
@@ -182,14 +192,20 @@ const secondaryProps = {
 
 const styles = StyleSheet.create({
   container: {
-    // paddingTop: 10
     flex: 1,
     backgroundColor: Colors.blueGrey50
+  },
+  title: {
+    fontSize: 24
+  },
+  paper: {
+    margin: 10,
+    elevation: 2
   },
   amountInput: {
     textAlign: 'right',
     flex: 1,
-    ...fontProps
+    ...amountFontProps
   },
   currency: {
     ...fontProps
@@ -225,7 +241,7 @@ const styles = StyleSheet.create({
     ...fontProps
   },
   addTipButton: {
-    marginTop: 50,
+    marginTop: 20,
     alignSelf: 'center'
   }
 })
