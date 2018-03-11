@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, Text, View, AsyncStorage } from 'react-native'
+import { StyleSheet, Text, View, AsyncStorage, Image } from 'react-native'
 import {
   TouchableRipple,
   Toolbar,
@@ -146,6 +146,10 @@ class Main extends Component {
         </Toolbar>
         {!loading && (
           <View style={styles.container}>
+            <Image
+              source={require('../assets/background.jpg')}
+              style={styles.backgroundImage}
+            />
             <Paper style={styles.paper}>
               <TouchableRipple
                 onPress={() =>
@@ -320,6 +324,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.blueGrey50
+  },
+  backgroundImage: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    resizeMode: 'cover',
+    opacity: 0.2
   },
   title: {
     fontSize: 24
