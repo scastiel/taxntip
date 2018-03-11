@@ -3,9 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "babel-eslint": "^8.2.2",
     "babel-preset-expo": "^4.0.0",
+    "eslint": "^4.18.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-react": "^7.7.0",
+    "eslint-plugin-standard": "^3.0.1",
     "exp": "^49.2.2",
     "jest-expo": "25.0.0",
+    "prettier": "^1.11.1",
     "react-native-scripts": "1.11.1",
     "react-test-renderer": "16.2.0"
   },
@@ -31,5 +42,24 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
+  },
+  "babel": {
+    "presets": ["expo"],
+    "env": {
+      "development": {
+        "plugins": ["transform-react-jsx-source"]
+      }
+    }
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "extends": [
+      "standard",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "env": {
+      "jest": true
+    }
   }
 }

@@ -1,14 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import {
-  Provider as PaperProvider,
   TouchableRipple,
   Toolbar,
   ToolbarContent,
   Button,
   Paragraph,
-  RadioButton,
-  Caption,
   Divider,
   Colors,
   Paper
@@ -42,7 +39,7 @@ class Main extends Component {
   }
 
   render() {
-    const { amount, amountText, editMode, tip, tipModalVisible } = this.state
+    const { amount, editMode, tip, tipModalVisible } = this.state
     return (
       <Fragment>
         <Toolbar>

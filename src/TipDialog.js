@@ -6,7 +6,6 @@ import {
   Paragraph,
   Dialog,
   DialogContent,
-  DialogActions,
   DialogTitle,
   RadioButton
 } from 'react-native-paper'
