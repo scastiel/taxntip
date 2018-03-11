@@ -5,7 +5,7 @@ import {
   Provider as PaperProvider,
   Colors
 } from 'react-native-paper'
-import { ScreenOrientation, Font } from 'expo'
+import { ScreenOrientation, Font, AppLoading, Asset } from 'expo'
 import Main from './src/Main'
 
 const theme = {
@@ -19,24 +19,35 @@ const theme = {
 
 export default class App extends React.Component {
   state = {
-    fontLoaded: false
+    assetsLoaded: false
   }
 
   async componentDidMount() {
     ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP)
     StatusBar.setBarStyle('light-content')
-    await Font.loadAsync({
-      Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
-      RobotoMedium: require('./assets/roboto/Roboto-Medium.ttf')
-    })
-    this.setState({ fontLoaded: true })
+  }
+
+  loadAssets() {
+    return Promise.all([
+      Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
+      Font.loadAsync({
+        Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
+        RobotoMedium: require('./assets/roboto/Roboto-Medium.ttf')
+      })
+    ])
   }
 
   render() {
-    return (
+    return this.state.assetsLoaded ? (
       <PaperProvider theme={theme}>
-        {this.state.fontLoaded && <Main />}
+        <Main />
       </PaperProvider>
+    ) : (
+      <AppLoading
+        startAsync={() => this.loadAssets()}
+        onFinish={() => this.setState({ assetsLoaded: true })}
+        onError={console.warn}
+      />
     )
   }
 }
