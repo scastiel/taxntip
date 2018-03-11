@@ -24,7 +24,7 @@ class Main extends Component {
     tipModalVisible: false,
     provinceModalVisible: false,
     tip: 0,
-    province: provinces.find(province => province.name === 'Québec'),
+    province: null,
     taxDetailsVisible: false,
     loading: true
   }
@@ -42,9 +42,13 @@ class Main extends Component {
     )
     this.setState({
       amount: amount === null ? this.state.amount : amount,
-      province: province === null ? this.state.province : province,
+      province:
+        province === null
+          ? this.state.province
+          : provinces.find(p => p.name === province.name),
       tip: tip === null ? this.state.tip : tip,
-      loading: false
+      loading: province === null,
+      provinceModalVisible: province === null
     })
   }
 
@@ -231,7 +235,11 @@ class Main extends Component {
           provinces={provinces}
           visible={provinceModalVisible}
           onDismiss={async province => {
-            await this.setState({ province, provinceModalVisible: false })
+            await this.setState({
+              province,
+              provinceModalVisible: false,
+              loading: false
+            })
             await this.saveStateInStorage()
           }}
         />
