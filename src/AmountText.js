@@ -4,13 +4,17 @@ import { Text } from 'react-native'
 
 class AmountText extends Component {
   static propTypes = {
-    amount: PropTypes.number
+    amount: PropTypes.number,
+    currency: PropTypes.string
+  }
+  static defaultProps = {
+    currency: 'CAD'
   }
 
   render() {
-    const { amount, ...props } = this.props
+    const { amount, currency, ...props } = this.props
     const formattedAmount = amount.toLocaleString('fr-CA', {
-      currency: 'CAD',
+      currency: currency,
       currencyDisplay: 'symbol',
       style: 'currency'
     })

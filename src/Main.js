@@ -16,6 +16,7 @@ import AmountInput from './AmountInput'
 import TipDialog from './TipDialog'
 import provinces from './provinces'
 import ProvinceDialog from './ProvinceDialog'
+import AmountTextWithConversion from './AmountTextWithConversion'
 
 class Main extends Component {
   state = {
@@ -25,8 +26,9 @@ class Main extends Component {
     provinceModalVisible: false,
     tip: 0,
     province: null,
-    taxDetailsVisible: false,
-    loading: true
+    taxDetailsVisible: true,
+    loading: true,
+    showConvertedPrice: true
   }
 
   componentWillMount() {
@@ -34,8 +36,20 @@ class Main extends Component {
   }
 
   async loadStateFromStorage() {
-    const [amount, province, tip] = await Promise.all(
-      ['amount', 'province', 'tip'].map(async key => {
+    const [
+      amount,
+      province,
+      tip,
+      taxDetailsVisible,
+      showConvertedPrice
+    ] = await Promise.all(
+      [
+        'amount',
+        'province',
+        'tip',
+        'taxDetailsVisible',
+        'showConvertedPrice'
+      ].map(async key => {
         const value = await AsyncStorage.getItem(key)
         return value ? JSON.parse(value) : null
       })
@@ -48,12 +62,26 @@ class Main extends Component {
           : provinces.find(p => p.name === province.name),
       tip: tip === null ? this.state.tip : tip,
       loading: province === null,
-      provinceModalVisible: province === null
+      provinceModalVisible: province === null,
+      taxDetailsVisible:
+        taxDetailsVisible === null
+          ? this.state.taxDetailsVisible
+          : taxDetailsVisible,
+      showConvertedPrice:
+        showConvertedPrice === null
+          ? this.state.showConvertedPrice
+          : showConvertedPrice
     })
   }
 
   async saveStateInStorage() {
-    ;['amount', 'province', 'tip'].forEach(key => {
+    ;[
+      'amount',
+      'province',
+      'tip',
+      'taxDetailsVisible',
+      'showConvertedPrice'
+    ].forEach(key => {
       AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
     })
   }
@@ -101,7 +129,8 @@ class Main extends Component {
       province,
       provinceModalVisible,
       taxDetailsVisible,
-      loading
+      loading,
+      showConvertedPrice
     } = this.state
     return (
       <Fragment>
@@ -142,9 +171,10 @@ class Main extends Component {
               </TouchableRipple>
               <Divider />
               <TouchableRipple
-                onPress={() =>
-                  this.setState({ taxDetailsVisible: !taxDetailsVisible })
-                }
+                onPress={async () => {
+                  await this.setState({ taxDetailsVisible: !taxDetailsVisible })
+                  await this.saveStateInStorage()
+                }}
               >
                 <View style={styles.detailsRow}>
                   <View style={styles.detailsRowContent}>
@@ -203,10 +233,24 @@ class Main extends Component {
                 </Fragment>
               )}
               <Divider />
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>Prix total</Paragraph>
-                <AmountText style={styles.amount} amount={this.getNetPrice()} />
-              </View>
+              <TouchableRipple
+                onPress={async () => {
+                  await this.setState({
+                    showConvertedPrice: !showConvertedPrice
+                  })
+                  await this.saveStateInStorage()
+                }}
+              >
+                <View style={styles.row}>
+                  <Paragraph style={styles.label}>Prix total</Paragraph>
+                  <AmountTextWithConversion
+                    amountStyle={styles.amount}
+                    convertedAmountStyle={styles.convertedPrice}
+                    amount={this.getNetPrice()}
+                    showConvertedAmount={showConvertedPrice}
+                  />
+                </View>
+              </TouchableRipple>
             </Paper>
             {tip === 0 && (
               <Button
@@ -346,6 +390,12 @@ const styles = StyleSheet.create({
   addTipButton: {
     marginTop: 20,
     alignSelf: 'center'
+  },
+  convertedPrice: {
+    ...secondaryProps,
+    ...amountProps,
+    fontSize: 14,
+    marginTop: 5
   }
 })
 
