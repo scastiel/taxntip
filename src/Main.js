@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, AsyncStorage } from 'react-native'
 import {
   TouchableRipple,
   Toolbar,
@@ -25,7 +25,33 @@ class Main extends Component {
     provinceModalVisible: false,
     tip: 0,
     province: provinces.find(province => province.name === 'Québec'),
-    taxDetailsVisible: false
+    taxDetailsVisible: false,
+    loading: true
+  }
+
+  componentWillMount() {
+    this.loadStateFromStorage()
+  }
+
+  async loadStateFromStorage() {
+    const [amount, province, tip] = await Promise.all(
+      ['amount', 'province', 'tip'].map(async key => {
+        const value = await AsyncStorage.getItem(key)
+        return value ? JSON.parse(value) : null
+      })
+    )
+    this.setState({
+      amount: amount === null ? this.state.amount : amount,
+      province: province === null ? this.state.province : province,
+      tip: tip === null ? this.state.tip : tip,
+      loading: false
+    })
+  }
+
+  async saveStateInStorage() {
+    ;['amount', 'province', 'tip'].forEach(key => {
+      AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
+    })
   }
 
   getTaxesPercentage() {
@@ -55,9 +81,12 @@ class Main extends Component {
     return this.state.tip * this.state.amount
   }
 
-  updateAmount(amount) {
-    this.setState({ amount, editMode: false })
+  async updateAmount(amount) {
+    await this.setState({ amount, editMode: false })
+    await this.saveStateInStorage()
   }
+
+  updateTip(tip) {}
 
   render() {
     const {
@@ -67,135 +96,144 @@ class Main extends Component {
       tipModalVisible,
       province,
       provinceModalVisible,
-      taxDetailsVisible
+      taxDetailsVisible,
+      loading
     } = this.state
     return (
       <Fragment>
         <Toolbar>
           <ToolbarContent
             title="Taxes et pourboires"
-            subtitle={province.name}
+            subtitle={loading ? 'Chargement…' : province.name}
           />
           <ToolbarAction
             icon="my-location"
             onPress={() => this.setState({ provinceModalVisible: true })}
           />
         </Toolbar>
-        <View style={styles.container}>
-          <Paper style={styles.paper}>
-            <TouchableRipple
-              onPress={() =>
-                this.state.editMode || this.setState({ editMode: true })
-              }
-            >
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
-                {editMode ? (
-                  <Fragment>
-                    <AmountInput
-                      innerRef={ref => ref && ref.focus()}
-                      amount={amount}
-                      onBlur={amount => this.updateAmount(amount)}
-                      style={styles.amountInput}
-                    />
-                    <Text style={styles.currency}> $</Text>
-                  </Fragment>
-                ) : (
-                  <AmountText style={styles.amount} amount={amount} />
-                )}
-              </View>
-            </TouchableRipple>
-            <Divider />
-            <TouchableRipple
-              onPress={() =>
-                this.setState({ taxDetailsVisible: !taxDetailsVisible })
-              }
-            >
-              <View style={styles.detailsRow}>
-                <View style={styles.detailsRowContent}>
-                  <Paragraph style={styles.secondaryLabel}>
-                    Taxes ({this.getTaxesPercentage().toLocaleString()} %)
-                  </Paragraph>
-                  <AmountText
-                    style={styles.secondaryAmount}
-                    amount={this.getTaxes()}
-                  />
+        {!loading && (
+          <View style={styles.container}>
+            <Paper style={styles.paper}>
+              <TouchableRipple
+                onPress={() =>
+                  this.state.editMode || this.setState({ editMode: true })
+                }
+              >
+                <View style={styles.row}>
+                  <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
+                  {editMode ? (
+                    <Fragment>
+                      <AmountInput
+                        innerRef={ref => ref && ref.focus()}
+                        amount={amount}
+                        onBlur={amount => this.updateAmount(amount)}
+                        style={styles.amountInput}
+                      />
+                      <Text style={styles.currency}> $</Text>
+                    </Fragment>
+                  ) : (
+                    <AmountText style={styles.amount} amount={amount} />
+                  )}
                 </View>
-                {taxDetailsVisible && (
-                  <View style={styles.detailRowDetails}>
-                    <View style={styles.detailsRowContent}>
-                      <Paragraph style={styles.secondaryLabelDetail}>
-                        Taxes province ({province.tax_province.toLocaleString()}{' '}
-                        %)
-                      </Paragraph>
-                      <AmountText
-                        style={styles.secondaryAmountDetail}
-                        amount={this.getProvinceTaxes()}
-                      />
-                    </View>
-                    <View style={styles.detailsRowContent}>
-                      <Paragraph style={styles.secondaryLabelDetail}>
-                        Taxes Canada ({province.tax_canada.toLocaleString()} %)
-                      </Paragraph>
-                      <AmountText
-                        style={styles.secondaryAmountDetail}
-                        amount={this.getCanadaTaxes()}
-                      />
-                    </View>
-                  </View>
-                )}
-              </View>
-            </TouchableRipple>
-            {tip > 0 && (
-              <Fragment>
-                <Divider />
-                <TouchableRipple
-                  onPress={() =>
-                    editMode || this.setState({ tipModalVisible: true })
-                  }
-                >
-                  <View style={styles.row}>
+              </TouchableRipple>
+              <Divider />
+              <TouchableRipple
+                onPress={() =>
+                  this.setState({ taxDetailsVisible: !taxDetailsVisible })
+                }
+              >
+                <View style={styles.detailsRow}>
+                  <View style={styles.detailsRowContent}>
                     <Paragraph style={styles.secondaryLabel}>
-                      Pourboire ({tip * 100} %)
+                      Taxes ({this.getTaxesPercentage().toLocaleString()} %)
                     </Paragraph>
                     <AmountText
                       style={styles.secondaryAmount}
-                      amount={this.getTip()}
+                      amount={this.getTaxes()}
                     />
                   </View>
-                </TouchableRipple>
-              </Fragment>
+                  {taxDetailsVisible && (
+                    <View style={styles.detailRowDetails}>
+                      <View style={styles.detailsRowContent}>
+                        <Paragraph style={styles.secondaryLabelDetail}>
+                          Taxes province ({province.tax_province.toLocaleString()}{' '}
+                          %)
+                        </Paragraph>
+                        <AmountText
+                          style={styles.secondaryAmountDetail}
+                          amount={this.getProvinceTaxes()}
+                        />
+                      </View>
+                      <View style={styles.detailsRowContent}>
+                        <Paragraph style={styles.secondaryLabelDetail}>
+                          Taxes Canada ({province.tax_canada.toLocaleString()}{' '}
+                          %)
+                        </Paragraph>
+                        <AmountText
+                          style={styles.secondaryAmountDetail}
+                          amount={this.getCanadaTaxes()}
+                        />
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </TouchableRipple>
+              {tip > 0 && (
+                <Fragment>
+                  <Divider />
+                  <TouchableRipple
+                    onPress={() =>
+                      editMode || this.setState({ tipModalVisible: true })
+                    }
+                  >
+                    <View style={styles.row}>
+                      <Paragraph style={styles.secondaryLabel}>
+                        Pourboire ({tip * 100} %)
+                      </Paragraph>
+                      <AmountText
+                        style={styles.secondaryAmount}
+                        amount={this.getTip()}
+                      />
+                    </View>
+                  </TouchableRipple>
+                </Fragment>
+              )}
+              <Divider />
+              <View style={styles.row}>
+                <Paragraph style={styles.label}>Prix total</Paragraph>
+                <AmountText style={styles.amount} amount={this.getNetPrice()} />
+              </View>
+            </Paper>
+            {tip === 0 && (
+              <Button
+                primary
+                disabled={editMode}
+                icon="add-circle"
+                style={styles.addTipButton}
+                onPress={() => this.setState({ tipModalVisible: true })}
+              >
+                Ajouter un pourboire
+              </Button>
             )}
-            <Divider />
-            <View style={styles.row}>
-              <Paragraph style={styles.label}>Prix total</Paragraph>
-              <AmountText style={styles.amount} amount={this.getNetPrice()} />
-            </View>
-          </Paper>
-          {tip === 0 && (
-            <Button
-              primary
-              disabled={editMode}
-              icon="add-circle"
-              style={styles.addTipButton}
-              onPress={() => this.setState({ tipModalVisible: true })}
-            >
-              Ajouter un pourboire
-            </Button>
-          )}
-        </View>
+          </View>
+        )}
+
         <TipDialog
           tip={tip}
           visible={tipModalVisible}
-          onDismiss={tip => this.setState({ tip, tipModalVisible: false })}
+          onDismiss={async tip => {
+            await this.setState({ tip, tipModalVisible: false })
+            await this.saveStateInStorage()
+          }}
         />
         <ProvinceDialog
           selectedProvince={province}
           provinces={provinces}
           visible={provinceModalVisible}
-          onDismiss={province =>
-            this.setState({ province, provinceModalVisible: false })
-          }
+          onDismiss={async province => {
+            await this.setState({ province, provinceModalVisible: false })
+            await this.saveStateInStorage()
+          }}
         />
       </Fragment>
     )
