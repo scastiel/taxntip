@@ -7,6 +7,7 @@
     "slug": "taxntip",
     "sdkVersion": "25.0.0",
     "primaryColor": "#1565c0",
+    "orientation": "portrait",
     "loading": {
       "backgroundColor": "#1565c0",
       "icon": "./assets/taxntip.png"

@@ -5,6 +5,7 @@ import {
   Provider as PaperProvider,
   Colors
 } from 'react-native-paper'
+import { ScreenOrientation } from 'expo'
 import Main from './src/Main'
 
 const theme = {
@@ -18,6 +19,7 @@ const theme = {
 
 export default class App extends React.Component {
   componentDidMount() {
+    ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP)
     StatusBar.setBarStyle('light-content')
   }
 
