@@ -6,16 +6,16 @@
     "icon": "./assets/taxntip.png",
     "slug": "taxntip",
     "sdkVersion": "25.0.0",
-    "primaryColor": "#1565c0",
+    "primaryColor": "#c62828",
     "orientation": "portrait",
     "loading": {
-      "backgroundColor": "#1565c0",
+      "backgroundColor": "#fafafa",
       "icon": "./assets/taxntip.png"
     },
-    "androidStatusBarColor": "#1565c0",
+    "androidStatusBarColor": "#c62828",
     "androidStatusBar": {
       "barStyle": "light-content",
-      "backgroundColor": "#03a9f4"
+      "backgroundColor": "#c62828"
     },
     "ios": {
       "bundleIdentifier": "me.castiel.taxntip",
