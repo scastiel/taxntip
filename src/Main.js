@@ -8,26 +8,37 @@ import {
   Paragraph,
   Divider,
   Colors,
-  Paper
+  Paper,
+  ToolbarAction
 } from 'react-native-paper'
 import AmountText from './AmountText'
 import AmountInput from './AmountInput'
 import TipDialog from './TipDialog'
+import provinces from './provinces'
+import ProvinceDialog from './ProvinceDialog'
 
 class Main extends Component {
   state = {
     amount: 30,
     editMode: false,
     tipModalVisible: false,
-    tip: 0
+    provinceModalVisible: false,
+    tip: 0,
+    province: provinces.find(province => province.name === 'Québec')
+  }
+
+  getTaxesPercentage() {
+    const { province } = this.state
+    return province.tax_canada + province.tax_province
   }
 
   getTaxes() {
-    return parseFloat(this.state.amount) * 0.15
+    const { amount } = this.state
+    return amount * this.getTaxesPercentage() / 100
   }
 
   getNetPrice() {
-    return parseFloat(this.state.amount) + this.getTaxes() + this.getTip()
+    return this.state.amount + this.getTaxes() + this.getTip()
   }
 
   getTip() {
@@ -39,13 +50,24 @@ class Main extends Component {
   }
 
   render() {
-    const { amount, editMode, tip, tipModalVisible } = this.state
+    const {
+      amount,
+      editMode,
+      tip,
+      tipModalVisible,
+      province,
+      provinceModalVisible
+    } = this.state
     return (
       <Fragment>
         <Toolbar>
           <ToolbarContent
             title="Taxes et pourboires"
-            subtitle="Québec, Canada"
+            subtitle={province.name}
+          />
+          <ToolbarAction
+            icon="my-location"
+            onPress={() => this.setState({ provinceModalVisible: true })}
           />
         </Toolbar>
         <View style={styles.container}>
@@ -74,7 +96,9 @@ class Main extends Component {
             </TouchableRipple>
             <Divider />
             <View style={styles.row}>
-              <Paragraph style={styles.secondaryLabel}>Taxes (15 %)</Paragraph>
+              <Paragraph style={styles.secondaryLabel}>
+                Taxes ({this.getTaxesPercentage().toLocaleString()} %)
+              </Paragraph>
               <AmountText
                 style={styles.secondaryAmount}
                 amount={this.getTaxes()}
@@ -122,6 +146,14 @@ class Main extends Component {
           tip={tip}
           visible={tipModalVisible}
           onDismiss={tip => this.setState({ tip, tipModalVisible: false })}
+        />
+        <ProvinceDialog
+          selectedProvince={province}
+          provinces={provinces}
+          visible={provinceModalVisible}
+          onDismiss={province =>
+            this.setState({ province, provinceModalVisible: false })
+          }
         />
       </Fragment>
     )
