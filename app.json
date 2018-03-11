@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tax’n Tip",
-    "description": "Calculate taxes and tips in Québec, Canada",
+    "description": "Calculate taxes and tips in Canada",
     "privacy": "public",
     "icon": "./assets/taxntip.png",
     "slug": "taxntip",
@@ -19,13 +19,13 @@
     },
     "ios": {
       "bundleIdentifier": "me.castiel.taxntip",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "icon": "./assets/icons/ios/iTunesArtwork@3x.png",
       "supportsTablet": true
     },
     "android": {
       "package": "me.castiel.taxntip",
-      "versionCode": 1
+      "versionCode": 2
     }
   }
 }
