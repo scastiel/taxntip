@@ -7,10 +7,6 @@ import {
   ToolbarContent,
   Button,
   Paragraph,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  DialogTitle,
   RadioButton,
   Caption,
   Divider,
@@ -19,6 +15,7 @@ import {
 } from 'react-native-paper'
 import AmountText from './AmountText'
 import AmountInput from './AmountInput'
+import TipDialog from './TipDialog'
 
 class Main extends Component {
   state = {
@@ -90,7 +87,9 @@ class Main extends Component {
               <Fragment>
                 <Divider />
                 <TouchableRipple
-                  onPress={() => this.setState({ tipModalVisible: true })}
+                  onPress={() =>
+                    editMode || this.setState({ tipModalVisible: true })
+                  }
                 >
                   <View style={styles.row}>
                     <Paragraph style={styles.secondaryLabel}>
@@ -113,6 +112,7 @@ class Main extends Component {
           {tip === 0 && (
             <Button
               primary
+              disabled={editMode}
               icon="add-circle"
               style={styles.addTipButton}
               onPress={() => this.setState({ tipModalVisible: true })}
@@ -121,35 +121,11 @@ class Main extends Component {
             </Button>
           )}
         </View>
-        <Dialog
+        <TipDialog
+          tip={tip}
           visible={tipModalVisible}
-          onDismiss={() => this.setState({ tipModalVisible: false })}
-        >
-          <DialogTitle>Choisir le pourboire</DialogTitle>
-          <DialogContent>
-            {[
-              { label: 'Aucun pourboire', value: 0 },
-              { label: '15 %', value: 0.15 },
-              { label: '20 %', value: 0.2 },
-              { label: '25 %', value: 0.25 }
-            ].map(({ label, value }) => (
-              <TouchableRipple
-                key={value}
-                onPress={() => {
-                  this.setState({ tip: value, tipModalVisible: false })
-                }}
-              >
-                <View style={styles.tipModalRow}>
-                  <Paragraph style={styles.tipModalLabel}>{label}</Paragraph>
-                  <RadioButton
-                    value="Aucun pourboire"
-                    checked={tip === value}
-                  />
-                </View>
-              </TouchableRipple>
-            ))}
-          </DialogContent>
-        </Dialog>
+          onDismiss={tip => this.setState({ tip, tipModalVisible: false })}
+        />
       </Fragment>
     )
   }
@@ -206,13 +182,6 @@ const styles = StyleSheet.create({
   secondaryAmount: {
     ...secondaryProps,
     ...amountProps
-  },
-  tipModalRow: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  tipModalLabel: {
-    flex: 1
   },
   row: {
     padding: 15,
