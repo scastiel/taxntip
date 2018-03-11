@@ -249,12 +249,14 @@ class Main extends Component {
 }
 
 const fontProps = {
-  fontSize: 18
+  fontSize: 18,
+  fontFamily: 'Roboto'
 }
 
 const amountFontProps = {
-  fontFamily: 'Menlo',
-  fontSize: 18
+  fontFamily: 'RobotoMedium',
+  fontSize: 18,
+  letterSpacing: 1
 }
 
 const labelProps = {
