@@ -24,7 +24,8 @@ class Main extends Component {
     tipModalVisible: false,
     provinceModalVisible: false,
     tip: 0,
-    province: provinces.find(province => province.name === 'Québec')
+    province: provinces.find(province => province.name === 'Québec'),
+    taxDetailsVisible: false
   }
 
   getTaxesPercentage() {
@@ -32,9 +33,18 @@ class Main extends Component {
     return province.tax_canada + province.tax_province
   }
 
+  getProvinceTaxes() {
+    const { amount, province } = this.state
+    return amount * province.tax_province / 100
+  }
+
+  getCanadaTaxes() {
+    const { amount, province } = this.state
+    return amount * province.tax_canada / 100
+  }
+
   getTaxes() {
-    const { amount } = this.state
-    return amount * this.getTaxesPercentage() / 100
+    return this.getProvinceTaxes() + this.getCanadaTaxes()
   }
 
   getNetPrice() {
@@ -56,7 +66,8 @@ class Main extends Component {
       tip,
       tipModalVisible,
       province,
-      provinceModalVisible
+      provinceModalVisible,
+      taxDetailsVisible
     } = this.state
     return (
       <Fragment>
@@ -95,15 +106,46 @@ class Main extends Component {
               </View>
             </TouchableRipple>
             <Divider />
-            <View style={styles.row}>
-              <Paragraph style={styles.secondaryLabel}>
-                Taxes ({this.getTaxesPercentage().toLocaleString()} %)
-              </Paragraph>
-              <AmountText
-                style={styles.secondaryAmount}
-                amount={this.getTaxes()}
-              />
-            </View>
+            <TouchableRipple
+              onPress={() =>
+                this.setState({ taxDetailsVisible: !taxDetailsVisible })
+              }
+            >
+              <View style={styles.detailsRow}>
+                <View style={styles.detailsRowContent}>
+                  <Paragraph style={styles.secondaryLabel}>
+                    Taxes ({this.getTaxesPercentage().toLocaleString()} %)
+                  </Paragraph>
+                  <AmountText
+                    style={styles.secondaryAmount}
+                    amount={this.getTaxes()}
+                  />
+                </View>
+                {taxDetailsVisible && (
+                  <View style={styles.detailRowDetails}>
+                    <View style={styles.detailsRowContent}>
+                      <Paragraph style={styles.secondaryLabelDetail}>
+                        Taxes province ({province.tax_province.toLocaleString()}{' '}
+                        %)
+                      </Paragraph>
+                      <AmountText
+                        style={styles.secondaryAmountDetail}
+                        amount={this.getProvinceTaxes()}
+                      />
+                    </View>
+                    <View style={styles.detailsRowContent}>
+                      <Paragraph style={styles.secondaryLabelDetail}>
+                        Taxes Canada ({province.tax_canada.toLocaleString()} %)
+                      </Paragraph>
+                      <AmountText
+                        style={styles.secondaryAmountDetail}
+                        amount={this.getCanadaTaxes()}
+                      />
+                    </View>
+                  </View>
+                )}
+              </View>
+            </TouchableRipple>
             {tip > 0 && (
               <Fragment>
                 <Divider />
@@ -212,11 +254,31 @@ const styles = StyleSheet.create({
     ...secondaryProps,
     ...amountProps
   },
+  secondaryAmountDetail: {
+    ...secondaryProps,
+    ...amountProps,
+    fontSize: 14
+  },
   row: {
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.grey50
+  },
+  detailsRow: {
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 15,
+    paddingBottom: 15,
+    flexDirection: 'column',
+    backgroundColor: Colors.grey50
+  },
+  detailsRowContent: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  detailRowDetails: {
+    marginTop: 5
   },
   label: {
     ...labelProps
@@ -224,6 +286,11 @@ const styles = StyleSheet.create({
   secondaryLabel: {
     ...secondaryProps,
     ...labelProps
+  },
+  secondaryLabelDetail: {
+    ...secondaryProps,
+    ...labelProps,
+    fontSize: 14
   },
   hint: {
     ...fontProps
