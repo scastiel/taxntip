@@ -25,7 +25,11 @@ class TipDialog extends Component {
   render() {
     const { tip, onDismiss, visible } = this.props
     return (
-      <Dialog visible={visible} onDismiss={() => onDismiss(tip)}>
+      <Dialog
+        style={styles.dialog}
+        visible={visible}
+        onDismiss={() => onDismiss(tip)}
+      >
         <DialogTitle>Choisir le pourboire</DialogTitle>
         <DialogContent>
           {[
@@ -48,6 +52,11 @@ class TipDialog extends Component {
 }
 
 const styles = StyleSheet.create({
+  dialog: {
+    alignSelf: 'center',
+    width: '90%',
+    maxWidth: 400
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center'

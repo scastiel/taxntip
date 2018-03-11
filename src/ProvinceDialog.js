@@ -34,7 +34,11 @@ class ProvinceDialog extends Component {
   render() {
     const { selectedProvince, provinces, onDismiss, visible } = this.props
     return (
-      <Dialog visible={visible} onDismiss={() => onDismiss(selectedProvince)}>
+      <Dialog
+        style={styles.dialog}
+        visible={visible}
+        onDismiss={() => onDismiss(selectedProvince)}
+      >
         <DialogTitle>Province</DialogTitle>
         <DialogContent>
           {provinces.map(province => (
@@ -58,6 +62,11 @@ class ProvinceDialog extends Component {
 }
 
 const styles = StyleSheet.create({
+  dialog: {
+    alignSelf: 'center',
+    width: '90%',
+    maxWidth: 400
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center'

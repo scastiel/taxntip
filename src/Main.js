@@ -150,112 +150,123 @@ class Main extends Component {
               source={require('../assets/background.jpg')}
               style={styles.backgroundImage}
             />
-            <Paper style={styles.paper}>
-              <TouchableRipple
-                onPress={() =>
-                  this.state.editMode || this.setState({ editMode: true })
-                }
-              >
-                <View style={styles.row}>
-                  <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
-                  {editMode ? (
-                    <Fragment>
-                      <AmountInput
-                        innerRef={ref => ref && ref.focus()}
-                        amount={amount}
-                        onBlur={amount => this.updateAmount(amount)}
-                        style={styles.amountInput}
-                      />
-                      <Text style={styles.currency}> $</Text>
-                    </Fragment>
-                  ) : (
-                    <AmountText style={styles.amount} amount={amount} />
-                  )}
-                </View>
-              </TouchableRipple>
-              <Divider />
-              <TouchableRipple
-                onPress={async () => {
-                  await this.setState({ taxDetailsVisible: !taxDetailsVisible })
-                  await this.saveStateInStorage()
-                }}
-              >
-                <View style={styles.detailsRow}>
-                  <View style={styles.detailsRowContent}>
-                    <Paragraph style={styles.secondaryLabel}>
-                      Taxes ({this.getTaxesPercentage().toLocaleString()} %)
-                    </Paragraph>
-                    <AmountText
-                      style={styles.secondaryAmount}
-                      amount={this.getTaxes()}
-                    />
+            <View style={styles.paperContainer}>
+              <Paper style={styles.paper}>
+                <TouchableRipple
+                  onPress={() =>
+                    this.state.editMode || this.setState({ editMode: true })
+                  }
+                >
+                  <View style={styles.row}>
+                    <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
+                    {editMode ? (
+                      <Fragment>
+                        <AmountInput
+                          innerRef={ref => ref && ref.focus()}
+                          amount={amount}
+                          onBlur={amount => this.updateAmount(amount)}
+                          style={styles.amountInput}
+                        />
+                        <Text style={styles.currency}> $</Text>
+                      </Fragment>
+                    ) : (
+                      <AmountText style={styles.amount} amount={amount} />
+                    )}
                   </View>
-                  {taxDetailsVisible && (
-                    <View style={styles.detailRowDetails}>
-                      <View style={styles.detailsRowContent}>
-                        <Paragraph style={styles.secondaryLabelDetail}>
-                          Taxes province ({province.tax_province.toLocaleString()}{' '}
-                          %)
-                        </Paragraph>
-                        <AmountText
-                          style={styles.secondaryAmountDetail}
-                          amount={this.getProvinceTaxes()}
-                        />
-                      </View>
-                      <View style={styles.detailsRowContent}>
-                        <Paragraph style={styles.secondaryLabelDetail}>
-                          Taxes Canada ({province.tax_canada.toLocaleString()}{' '}
-                          %)
-                        </Paragraph>
-                        <AmountText
-                          style={styles.secondaryAmountDetail}
-                          amount={this.getCanadaTaxes()}
-                        />
-                      </View>
-                    </View>
-                  )}
-                </View>
-              </TouchableRipple>
-              {tip > 0 && (
-                <Fragment>
-                  <Divider />
-                  <TouchableRipple
-                    onPress={() =>
-                      editMode || this.setState({ tipModalVisible: true })
-                    }
-                  >
-                    <View style={styles.row}>
+                </TouchableRipple>
+                <Divider />
+                <TouchableRipple
+                  onPress={async () => {
+                    await this.setState({
+                      taxDetailsVisible: !taxDetailsVisible
+                    })
+                    await this.saveStateInStorage()
+                  }}
+                >
+                  <View style={styles.detailsRow}>
+                    <View style={styles.detailsRowContent}>
                       <Paragraph style={styles.secondaryLabel}>
-                        Pourboire ({tip * 100} %)
+                        Taxes ({this.getTaxesPercentage().toLocaleString(
+                          'fr-CA'
+                        )}{' '}
+                        %)
                       </Paragraph>
                       <AmountText
                         style={styles.secondaryAmount}
-                        amount={this.getTip()}
+                        amount={this.getTaxes()}
                       />
                     </View>
-                  </TouchableRipple>
-                </Fragment>
-              )}
-              <Divider />
-              <TouchableRipple
-                onPress={async () => {
-                  await this.setState({
-                    showConvertedPrice: !showConvertedPrice
-                  })
-                  await this.saveStateInStorage()
-                }}
-              >
-                <View style={styles.row}>
-                  <Paragraph style={styles.label}>Prix total</Paragraph>
-                  <AmountTextWithConversion
-                    amountStyle={styles.amount}
-                    convertedAmountStyle={styles.convertedPrice}
-                    amount={this.getNetPrice()}
-                    showConvertedAmount={showConvertedPrice}
-                  />
-                </View>
-              </TouchableRipple>
-            </Paper>
+                    {taxDetailsVisible && (
+                      <View style={styles.detailRowDetails}>
+                        <View style={styles.detailsRowContent}>
+                          <Paragraph style={styles.secondaryLabelDetail}>
+                            Taxes province ({province.tax_province.toLocaleString(
+                              'fr-CA'
+                            )}{' '}
+                            %)
+                          </Paragraph>
+                          <AmountText
+                            style={styles.secondaryAmountDetail}
+                            amount={this.getProvinceTaxes()}
+                          />
+                        </View>
+                        <View style={styles.detailsRowContent}>
+                          <Paragraph style={styles.secondaryLabelDetail}>
+                            Taxes Canada ({province.tax_canada.toLocaleString(
+                              'fr-CA'
+                            )}{' '}
+                            %)
+                          </Paragraph>
+                          <AmountText
+                            style={styles.secondaryAmountDetail}
+                            amount={this.getCanadaTaxes()}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                </TouchableRipple>
+                {tip > 0 && (
+                  <Fragment>
+                    <Divider />
+                    <TouchableRipple
+                      onPress={() =>
+                        editMode || this.setState({ tipModalVisible: true })
+                      }
+                    >
+                      <View style={styles.row}>
+                        <Paragraph style={styles.secondaryLabel}>
+                          Pourboire ({(tip * 100).toLocaleString('fr-CA')} %)
+                        </Paragraph>
+                        <AmountText
+                          style={styles.secondaryAmount}
+                          amount={this.getTip()}
+                        />
+                      </View>
+                    </TouchableRipple>
+                  </Fragment>
+                )}
+                <Divider />
+                <TouchableRipple
+                  onPress={async () => {
+                    await this.setState({
+                      showConvertedPrice: !showConvertedPrice
+                    })
+                    await this.saveStateInStorage()
+                  }}
+                >
+                  <View style={styles.row}>
+                    <Paragraph style={styles.label}>Prix total</Paragraph>
+                    <AmountTextWithConversion
+                      amountStyle={styles.amount}
+                      convertedAmountStyle={styles.convertedPrice}
+                      amount={this.getNetPrice()}
+                      showConvertedAmount={showConvertedPrice}
+                    />
+                  </View>
+                </TouchableRipple>
+              </Paper>
+            </View>
             {tip === 0 && (
               <Button
                 primary
@@ -335,9 +346,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24
   },
+  paperContainer: {
+    // flex: 1,
+    padding: 10,
+    width: '100%',
+    alignItems: 'center'
+  },
   paper: {
-    margin: 10,
-    elevation: 2
+    elevation: 2,
+    maxWidth: 500,
+    width: '100%'
   },
   amountInput: {
     textAlign: 'right',
