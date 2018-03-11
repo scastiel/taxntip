@@ -309,14 +309,11 @@ const labelProps = {
 }
 
 const amountProps = {
-  textAlign: 'right',
-  width: 100,
   ...amountFontProps
 }
 
 const secondaryProps = {
   color: 'grey'
-  // fontStyle: 'italic'
 }
 
 const styles = StyleSheet.create({
@@ -337,7 +334,9 @@ const styles = StyleSheet.create({
     ...amountFontProps
   },
   currency: {
-    ...fontProps
+    ...amountFontProps,
+    width: 20,
+    textAlign: 'center'
   },
   amount: {
     ...amountProps

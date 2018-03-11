@@ -28,7 +28,7 @@ class AmountTextWithConversion extends Component {
           <AmountText
             style={convertedAmountStyle}
             amount={amount / 1.58}
-            currency="EUR"
+            currency="€"
           />
         )}
       </View>

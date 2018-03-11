@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 
 class AmountText extends Component {
   static propTypes = {
@@ -8,17 +8,36 @@ class AmountText extends Component {
     currency: PropTypes.string
   }
   static defaultProps = {
-    currency: 'CAD'
+    currency: '$'
   }
 
   render() {
     const { amount, currency, ...props } = this.props
     const formattedAmount = amount.toLocaleString('fr-CA', {
-      currency: currency,
-      currencyDisplay: 'symbol',
-      style: 'currency'
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     })
-    return <Text {...props}>{formattedAmount}</Text>
+    return (
+      <View style={{ flexDirection: 'row' }}>
+        <Text
+          style={[
+            {
+              textAlign: 'right',
+              width: 100
+            },
+            props.style
+          ]}
+        >
+          {formattedAmount}
+        </Text>
+        <View style={{ width: 20, height: 20 }}>
+          <Text style={[props.style, { textAlign: 'center' }]}>
+            {' '}
+            {currency}
+          </Text>
+        </View>
+      </View>
+    )
   }
 }
 
