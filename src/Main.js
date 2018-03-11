@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import {
   Provider as PaperProvider,
   TouchableRipple,
@@ -18,11 +18,11 @@ import {
   Paper
 } from 'react-native-paper'
 import AmountText from './AmountText'
+import AmountInput from './AmountInput'
 
 class Main extends Component {
   state = {
     amount: 30,
-    amountText: '30',
     editMode: false,
     tipModalVisible: false,
     tip: 0
@@ -40,11 +40,8 @@ class Main extends Component {
     return this.state.tip * this.state.amount
   }
 
-  updateAmount() {
-    this.setState({
-      amount: parseFloat(this.state.amountText),
-      editMode: false
-    })
+  updateAmount(amount) {
+    this.setState({ amount, editMode: false })
   }
 
   render() {
@@ -68,17 +65,10 @@ class Main extends Component {
                 <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
                 {editMode ? (
                   <Fragment>
-                    <TextInput
-                      ref={ref => {
-                        if (ref) {
-                          ref.focus()
-                        }
-                      }}
-                      value={amountText}
-                      keyboardType="numeric"
-                      returnKeyType="done"
-                      onChangeText={text => this.setState({ amountText: text })}
-                      onBlur={() => this.updateAmount()}
+                    <AmountInput
+                      innerRef={ref => ref && ref.focus()}
+                      amount={amount}
+                      onBlur={amount => this.updateAmount(amount)}
                       style={styles.amountInput}
                     />
                     <Text style={styles.currency}> $</Text>
