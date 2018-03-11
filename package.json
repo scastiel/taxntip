@@ -36,6 +36,7 @@
   "dependencies": {
     "expo": "^25.0.0",
     "react": "16.2.0",
+    "react-intl": "^2.4.0",
     "react-native": "0.52.0",
     "react-native-paper": "^1.1.1"
   },
@@ -44,10 +45,14 @@
     "singleQuote": true
   },
   "babel": {
-    "presets": ["expo"],
+    "presets": [
+      "expo"
+    ],
     "env": {
       "development": {
-        "plugins": ["transform-react-jsx-source"]
+        "plugins": [
+          "transform-react-jsx-source"
+        ]
       }
     }
   },

@@ -5,7 +5,11 @@ import {
   Provider as PaperProvider,
   Colors
 } from 'react-native-paper'
-import { ScreenOrientation, Font, AppLoading, Asset } from 'expo'
+import { ScreenOrientation, Font, AppLoading, Asset, Util } from 'expo'
+import { IntlProvider, addLocaleData, defineMessages } from 'react-intl'
+import frLocaleData from 'react-intl/locale-data/fr'
+import enLocaleData from 'react-intl/locale-data/en'
+import messages from './src/i18n'
 import Main from './src/Main'
 
 const theme = {
@@ -27,8 +31,28 @@ export default class App extends React.Component {
     StatusBar.setBarStyle('light-content')
   }
 
-  loadAssets() {
-    return Promise.all([
+  async getLocale() {
+    const locale = await Util.getCurrentLocaleAsync()
+    if (
+      locale === 'fr' ||
+      locale.startsWith('fr-') ||
+      locale.startsWith('fr_')
+    ) {
+      return 'fr'
+    }
+    return 'en'
+  }
+
+  async loadAssets() {
+    const locale = await this.getLocale()
+    if (locale === 'fr') {
+      addLocaleData(frLocaleData)
+    } else {
+      addLocaleData(enLocaleData)
+    }
+    await this.setState({ locale })
+
+    await Promise.all([
       Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
@@ -40,7 +64,12 @@ export default class App extends React.Component {
   render() {
     return this.state.assetsLoaded ? (
       <PaperProvider theme={theme}>
-        <Main />
+        <IntlProvider
+          locale={this.state.locale}
+          messages={messages[this.state.locale]}
+        >
+          <Main />
+        </IntlProvider>
       </PaperProvider>
     ) : (
       <AppLoading

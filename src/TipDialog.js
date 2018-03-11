@@ -9,12 +9,14 @@ import {
   DialogTitle,
   RadioButton
 } from 'react-native-paper'
+import { injectIntl, intlShape } from 'react-intl'
 
 class TipDialog extends Component {
   static propTypes = {
     tip: PropTypes.number,
     visible: PropTypes.bool,
-    onDismiss: PropTypes.func
+    onDismiss: PropTypes.func,
+    intl: intlShape.isRequired
   }
   static defaultProps = {
     tip: 0,
@@ -23,17 +25,17 @@ class TipDialog extends Component {
   }
 
   render() {
-    const { tip, onDismiss, visible } = this.props
+    const { tip, onDismiss, visible, intl } = this.props
     return (
       <Dialog
         style={styles.dialog}
         visible={visible}
         onDismiss={() => onDismiss(tip)}
       >
-        <DialogTitle>Choisir le pourboire</DialogTitle>
+        <DialogTitle>{intl.formatMessage({ id: 'chooseTip' })}</DialogTitle>
         <DialogContent>
           {[
-            { label: 'Aucun pourboire', value: 0 },
+            { label: intl.formatMessage({ id: 'noTip' }), value: 0 },
             { label: '15 %', value: 0.15 },
             { label: '20 %', value: 0.2 },
             { label: '25 %', value: 0.25 }
@@ -41,7 +43,7 @@ class TipDialog extends Component {
             <TouchableRipple key={value} onPress={() => onDismiss(value)}>
               <View style={styles.row}>
                 <Paragraph style={styles.label}>{label}</Paragraph>
-                <RadioButton value="Aucun pourboire" checked={tip === value} />
+                <RadioButton value={value} checked={tip === value} />
               </View>
             </TouchableRipple>
           ))}
@@ -66,4 +68,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default TipDialog
+export default injectIntl(TipDialog)

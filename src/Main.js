@@ -11,6 +11,7 @@ import {
   Paper,
   ToolbarAction
 } from 'react-native-paper'
+import { injectIntl, intlShape } from 'react-intl'
 import AmountText from './AmountText'
 import AmountInput from './AmountInput'
 import TipDialog from './TipDialog'
@@ -19,6 +20,10 @@ import ProvinceDialog from './ProvinceDialog'
 import AmountTextWithConversion from './AmountTextWithConversion'
 
 class Main extends Component {
+  static propTypes = {
+    intl: intlShape.isRequired
+  }
+
   state = {
     amount: 30,
     editMode: false,
@@ -59,7 +64,8 @@ class Main extends Component {
       province:
         province === null
           ? this.state.province
-          : provinces.find(p => p.name === province.name),
+          : provinces.find(p => p.id === province) ||
+            provinces.find(p => p.id === 'QC'),
       tip: tip === null ? this.state.tip : tip,
       loading: province === null,
       provinceModalVisible: province === null,
@@ -75,15 +81,12 @@ class Main extends Component {
   }
 
   async saveStateInStorage() {
-    ;[
-      'amount',
-      'province',
-      'tip',
-      'taxDetailsVisible',
-      'showConvertedPrice'
-    ].forEach(key => {
-      AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
-    })
+    ;['amount', 'tip', 'taxDetailsVisible', 'showConvertedPrice'].forEach(
+      key => {
+        AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
+      }
+    )
+    AsyncStorage.setItem('province', JSON.stringify(this.state.province.id))
   }
 
   getTaxesPercentage() {
@@ -118,9 +121,8 @@ class Main extends Component {
     await this.saveStateInStorage()
   }
 
-  updateTip(tip) {}
-
   render() {
+    const { intl } = this.props
     const {
       amount,
       editMode,
@@ -136,8 +138,8 @@ class Main extends Component {
       <Fragment>
         <Toolbar>
           <ToolbarContent
-            title="Taxes et pourboires"
-            subtitle={loading ? 'Chargement…' : province.name}
+            title={intl.formatMessage({ id: 'title' })}
+            subtitle={loading ? 'Chargement…' : province.name[intl.locale]}
           />
           <ToolbarAction
             icon="my-location"
@@ -158,7 +160,9 @@ class Main extends Component {
                   }
                 >
                   <View style={styles.row}>
-                    <Paragraph style={styles.label}>Prix hors taxes</Paragraph>
+                    <Paragraph style={styles.label}>
+                      {intl.formatMessage({ id: 'withoutTaxesPrice' })}
+                    </Paragraph>
                     {editMode ? (
                       <Fragment>
                         <AmountInput
@@ -186,7 +190,7 @@ class Main extends Component {
                   <View style={styles.detailsRow}>
                     <View style={styles.detailsRowContent}>
                       <Paragraph style={styles.secondaryLabel}>
-                        Taxes ({this.getTaxesPercentage().toLocaleString(
+                        {intl.formatMessage({ id: 'taxes' })} ({this.getTaxesPercentage().toLocaleString(
                           'fr-CA'
                         )}{' '}
                         %)
@@ -200,7 +204,7 @@ class Main extends Component {
                       <View style={styles.detailRowDetails}>
                         <View style={styles.detailsRowContent}>
                           <Paragraph style={styles.secondaryLabelDetail}>
-                            Taxes province ({province.tax_province.toLocaleString(
+                            {intl.formatMessage({ id: 'provinceTaxes' })} ({province.tax_province.toLocaleString(
                               'fr-CA'
                             )}{' '}
                             %)
@@ -212,7 +216,7 @@ class Main extends Component {
                         </View>
                         <View style={styles.detailsRowContent}>
                           <Paragraph style={styles.secondaryLabelDetail}>
-                            Taxes Canada ({province.tax_canada.toLocaleString(
+                            {intl.formatMessage({ id: 'canadaTaxes' })} ({province.tax_canada.toLocaleString(
                               'fr-CA'
                             )}{' '}
                             %)
@@ -236,7 +240,10 @@ class Main extends Component {
                     >
                       <View style={styles.row}>
                         <Paragraph style={styles.secondaryLabel}>
-                          Pourboire ({(tip * 100).toLocaleString('fr-CA')} %)
+                          {intl.formatMessage({ id: 'tip' })} ({(
+                            tip * 100
+                          ).toLocaleString('fr-CA')}{' '}
+                          %)
                         </Paragraph>
                         <AmountText
                           style={styles.secondaryAmount}
@@ -256,7 +263,9 @@ class Main extends Component {
                   }}
                 >
                   <View style={styles.row}>
-                    <Paragraph style={styles.label}>Prix total</Paragraph>
+                    <Paragraph style={styles.label}>
+                      {intl.formatMessage({ id: 'totalPrice' })}
+                    </Paragraph>
                     <AmountTextWithConversion
                       amountStyle={styles.amount}
                       convertedAmountStyle={styles.convertedPrice}
@@ -275,7 +284,7 @@ class Main extends Component {
                 style={styles.addTipButton}
                 onPress={() => this.setState({ tipModalVisible: true })}
               >
-                Ajouter un pourboire
+                {intl.formatMessage({ id: 'addTip' })}
               </Button>
             )}
           </View>
@@ -427,4 +436,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default Main
+export default injectIntl(Main)

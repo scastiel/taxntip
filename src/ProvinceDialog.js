@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { StyleSheet, View } from 'react-native'
 import PropTypes from 'prop-types'
+import { injectIntl, intlShape } from 'react-intl'
 import {
   TouchableRipple,
   Paragraph,
@@ -11,7 +12,7 @@ import {
 } from 'react-native-paper'
 
 const provinceShape = PropTypes.shape({
-  name: PropTypes.string.isRequired,
+  name: PropTypes.objectOf(PropTypes.string).isRequired,
   type: PropTypes.string.isRequired,
   tax_province: PropTypes.number.isRequired,
   tax_canada: PropTypes.number.isRequired
@@ -22,7 +23,8 @@ class ProvinceDialog extends Component {
     visible: PropTypes.bool,
     selectedProvince: provinceShape,
     provinces: PropTypes.arrayOf(provinceShape),
-    onDismiss: PropTypes.func
+    onDismiss: PropTypes.func,
+    intl: intlShape.isRequired
   }
   static defaultProps = {
     visible: false,
@@ -32,24 +34,26 @@ class ProvinceDialog extends Component {
   }
 
   render() {
-    const { selectedProvince, provinces, onDismiss, visible } = this.props
+    const { selectedProvince, provinces, onDismiss, visible, intl } = this.props
     return (
       <Dialog
         style={styles.dialog}
         visible={visible}
         onDismiss={() => onDismiss(selectedProvince)}
       >
-        <DialogTitle>Province</DialogTitle>
+        <DialogTitle>{intl.formatMessage({ id: 'province' })}</DialogTitle>
         <DialogContent>
           {provinces.map(province => (
             <TouchableRipple
-              key={province.name}
+              key={province.id}
               onPress={() => onDismiss(province)}
             >
               <View style={styles.row}>
-                <Paragraph style={styles.label}>{province.name}</Paragraph>
+                <Paragraph style={styles.label}>
+                  {province.name[intl.locale]}
+                </Paragraph>
                 <RadioButton
-                  value={province.name}
+                  value={province.id}
                   checked={selectedProvince === province}
                 />
               </View>
@@ -76,4 +80,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default ProvinceDialog
+export default injectIntl(ProvinceDialog)
