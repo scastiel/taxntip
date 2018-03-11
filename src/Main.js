@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, Text, View, AsyncStorage, Image } from 'react-native'
+import { StyleSheet, View, AsyncStorage, Image } from 'react-native'
 import {
   TouchableRipple,
   Toolbar,
@@ -170,8 +170,8 @@ class Main extends Component {
                           amount={amount}
                           onBlur={amount => this.updateAmount(amount)}
                           style={styles.amountInput}
+                          currencyStyle={styles.currency}
                         />
-                        <Text style={styles.currency}> $</Text>
                       </Fragment>
                     ) : (
                       <AmountText style={styles.amount} amount={amount} />
@@ -190,8 +190,8 @@ class Main extends Component {
                   <View style={styles.detailsRow}>
                     <View style={styles.detailsRowContent}>
                       <Paragraph style={styles.secondaryLabel}>
-                        {intl.formatMessage({ id: 'taxes' })} ({this.getTaxesPercentage().toLocaleString(
-                          'fr-CA'
+                        {intl.formatMessage({ id: 'taxes' })} ({intl.formatNumber(
+                          this.getTaxesPercentage()
                         )}{' '}
                         %)
                       </Paragraph>
@@ -204,8 +204,8 @@ class Main extends Component {
                       <View style={styles.detailRowDetails}>
                         <View style={styles.detailsRowContent}>
                           <Paragraph style={styles.secondaryLabelDetail}>
-                            {intl.formatMessage({ id: 'provinceTaxes' })} ({province.tax_province.toLocaleString(
-                              'fr-CA'
+                            {intl.formatMessage({ id: 'provinceTaxes' })} ({intl.formatNumber(
+                              province.tax_province
                             )}{' '}
                             %)
                           </Paragraph>
@@ -216,8 +216,8 @@ class Main extends Component {
                         </View>
                         <View style={styles.detailsRowContent}>
                           <Paragraph style={styles.secondaryLabelDetail}>
-                            {intl.formatMessage({ id: 'canadaTaxes' })} ({province.tax_canada.toLocaleString(
-                              'fr-CA'
+                            {intl.formatMessage({ id: 'canadaTaxes' })} ({intl.formatNumber(
+                              province.tax_canada
                             )}{' '}
                             %)
                           </Paragraph>
@@ -240,9 +240,9 @@ class Main extends Component {
                     >
                       <View style={styles.row}>
                         <Paragraph style={styles.secondaryLabel}>
-                          {intl.formatMessage({ id: 'tip' })} ({(
+                          {intl.formatMessage({ id: 'tip' })} ({intl.formatNumber(
                             tip * 100
-                          ).toLocaleString('fr-CA')}{' '}
+                          )}{' '}
                           %)
                         </Paragraph>
                         <AmountText

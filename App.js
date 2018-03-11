@@ -6,7 +6,7 @@ import {
   Colors
 } from 'react-native-paper'
 import { ScreenOrientation, Font, AppLoading, Asset, Util } from 'expo'
-import { IntlProvider, addLocaleData, defineMessages } from 'react-intl'
+import { IntlProvider, addLocaleData } from 'react-intl'
 import frLocaleData from 'react-intl/locale-data/fr'
 import enLocaleData from 'react-intl/locale-data/en'
 import messages from './src/i18n'

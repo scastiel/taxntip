@@ -22,7 +22,7 @@ class AmountTextWithConversion extends Component {
       showConvertedAmount
     } = this.props
     return (
-      <View style={{ flexDirection: 'column' }}>
+      <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
         <AmountText style={amountStyle} amount={amount} />
         {showConvertedAmount && (
           <AmountText

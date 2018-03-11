@@ -1,12 +1,15 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { TextInput } from 'react-native'
+import { TextInput, Text } from 'react-native'
+import { injectIntl, intlShape } from 'react-intl'
 
 class AmountInput extends Component {
   static propTypes = {
     amount: PropTypes.number,
     onBlur: PropTypes.func,
-    innerRef: PropTypes.func
+    innerRef: PropTypes.func,
+    currencyStyle: PropTypes.any,
+    intl: intlShape.isRequired
   }
   static defaultProps = {
     amount: 0,
@@ -17,7 +20,7 @@ class AmountInput extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      amountText: props.amount.toLocaleString()
+      amountText: props.intl.formatNumber(props.amount)
     }
   }
 
@@ -28,9 +31,17 @@ class AmountInput extends Component {
   }
 
   render() {
-    const { innerRef, onBlur, amount, ...props } = this.props
+    const {
+      innerRef,
+      onBlur,
+      amount,
+      currencyStyle,
+      intl,
+      ...props
+    } = this.props
     const { amountText } = this.state
-    return (
+
+    const inputComp = (
       <TextInput
         ref={innerRef}
         value={amountText}
@@ -41,7 +52,19 @@ class AmountInput extends Component {
         {...props}
       />
     )
+
+    const currencyComp = <Text style={currencyStyle}> $</Text>
+
+    return intl.locale === 'fr' ? (
+      <Fragment>
+        {inputComp}
+        {currencyComp}
+      </Fragment>
+    ) : (
+      // FIXME: no beautiful way to display currency at the left of the input field
+      <Fragment>{inputComp}</Fragment>
+    )
   }
 }
 
-export default AmountInput
+export default injectIntl(AmountInput)
