@@ -7,8 +7,6 @@ import {
 } from 'react-native-paper'
 import { ScreenOrientation, Font, AppLoading, Asset, Util } from 'expo'
 import { IntlProvider, addLocaleData } from 'react-intl'
-import frLocaleData from 'react-intl/locale-data/fr'
-import enLocaleData from 'react-intl/locale-data/en'
 import messages from './src/i18n'
 import Main from './src/Main'
 
@@ -20,6 +18,9 @@ const theme = {
     accent: Colors.blue500
   }
 }
+
+// Uncomment to clear settings:
+// AsyncStorage.clear()
 
 export default class App extends React.Component {
   state = {
@@ -45,10 +46,14 @@ export default class App extends React.Component {
 
   async loadLocale() {
     const locale = await this.getLocale()
+    const hasIntl = global.Intl
+    if (!hasIntl) global.Intl = require('intl')
     if (locale === 'fr') {
-      addLocaleData(frLocaleData)
+      if (!hasIntl) require('intl/locale-data/jsonp/fr.js')
+      addLocaleData(require('react-intl/locale-data/fr'))
     } else {
-      addLocaleData(enLocaleData)
+      if (!hasIntl) require('intl/locale-data/jsonp/en.js')
+      addLocaleData(require('react-intl/locale-data/en'))
     }
     await this.setState({ locale })
   }
@@ -65,7 +70,11 @@ export default class App extends React.Component {
         const value = await AsyncStorage.getItem(key)
         return { key, value: value ? JSON.parse(value) : null }
       })
-    )).reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
+    )).reduce(
+      (acc, { key, value }) =>
+        value === null ? acc : { ...acc, [key]: value },
+      {}
+    )
     await this.setState({ savedState })
   }
 
@@ -85,7 +94,8 @@ export default class App extends React.Component {
       Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
-        RobotoMedium: require('./assets/roboto/Roboto-Medium.ttf')
+        RobotoMedium: require('./assets/roboto/Roboto-Medium.ttf'),
+        MaterialIcons: require('./node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf')
       })
     ])
   }

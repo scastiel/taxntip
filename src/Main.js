@@ -27,7 +27,7 @@ class Main extends Component {
   }
   static defaultProps = {
     amount: 30,
-    provinceId: 'QC',
+    provinceId: null,
     tip: 0,
     taxDetailsVisible: true,
     showConvertedPrice: true,
@@ -40,11 +40,9 @@ class Main extends Component {
       amount: props.amount,
       editMode: false,
       tipModalVisible: false,
-      provinceModalVisible: false,
+      provinceModalVisible: props.provinceId === null,
       tip: props.tip,
-      province:
-        this.getProvince(props.provinceId) ||
-        this.getProvince(Main.defaultProps.provinceId),
+      province: props.provinceId ? this.getProvince(props.provinceId) : null,
       taxDetailsVisible: props.taxDetailsVisible,
       showConvertedPrice: props.showConvertedPrice
     }
@@ -238,26 +236,29 @@ class Main extends Component {
 
   render() {
     const { tip, tipModalVisible, province, provinceModalVisible } = this.state
-
     return (
       <Fragment>
-        <AppToolbar
-          province={province}
-          onProvinceButtonPressed={() =>
-            this.setState({ provinceModalVisible: true })
-          }
-        />
-        <AppContainer>
-          <RowsContainer
-            rows={[
-              this.renderExcTaxPriceRow(),
-              this.renderTaxesRow(),
-              tip > 0 && this.renderTipRow(),
-              this.renderTotalPriceRow()
-            ]}
-          />
-          {tip === 0 && this.renderAddTipButton()}
-        </AppContainer>
+        {province && (
+          <Fragment>
+            <AppToolbar
+              province={province}
+              onProvinceButtonPressed={() =>
+                this.setState({ provinceModalVisible: true })
+              }
+            />
+            <AppContainer>
+              <RowsContainer
+                rows={[
+                  this.renderExcTaxPriceRow(),
+                  this.renderTaxesRow(),
+                  tip > 0 && this.renderTipRow(),
+                  this.renderTotalPriceRow()
+                ]}
+              />
+              {!tip && this.renderAddTipButton()}
+            </AppContainer>
+          </Fragment>
+        )}
 
         <TipDialog
           tip={tip}
