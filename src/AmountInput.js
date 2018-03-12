@@ -72,7 +72,10 @@ class AmountInput extends Component {
 const styles = StyleSheet.create({
   amountInput: {
     textAlign: 'right',
-    flex: 1
+    flex: 1,
+    borderWidth: 0,
+    padding: 5,
+    margin: -5
   }
 })
 

@@ -96,7 +96,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.grey50
   },
   label: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 0,
     ...fontProps
   },
   secondary: {
