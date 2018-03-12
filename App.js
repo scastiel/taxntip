@@ -1,5 +1,5 @@
 import React from 'react'
-import { StatusBar } from 'react-native'
+import { StatusBar, AsyncStorage } from 'react-native'
 import {
   DefaultTheme,
   Provider as PaperProvider,
@@ -43,7 +43,7 @@ export default class App extends React.Component {
     return 'en'
   }
 
-  async loadAssets() {
+  async loadLocale() {
     const locale = await this.getLocale()
     if (locale === 'fr') {
       addLocaleData(frLocaleData)
@@ -51,8 +51,28 @@ export default class App extends React.Component {
       addLocaleData(enLocaleData)
     }
     await this.setState({ locale })
+  }
 
+  async loadStateFromStorage() {
+    const savedState = (await Promise.all(
+      [
+        'amount',
+        'provinceId',
+        'tip',
+        'taxDetailsVisible',
+        'showConvertedPrice'
+      ].map(async key => {
+        const value = await AsyncStorage.getItem(key)
+        return { key, value: value ? JSON.parse(value) : null }
+      })
+    )).reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
+    await this.setState({ savedState })
+  }
+
+  async loadAssets() {
     await Promise.all([
+      this.loadLocale(),
+      this.loadStateFromStorage(),
       Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
@@ -62,13 +82,11 @@ export default class App extends React.Component {
   }
 
   render() {
-    return this.state.assetsLoaded ? (
+    const { savedState, assetsLoaded, locale } = this.state
+    return assetsLoaded ? (
       <PaperProvider theme={theme}>
-        <IntlProvider
-          locale={this.state.locale}
-          messages={messages[this.state.locale]}
-        >
-          <Main />
+        <IntlProvider locale={locale} messages={messages[locale]}>
+          <Main {...savedState} />
         </IntlProvider>
       </PaperProvider>
     ) : (

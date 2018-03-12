@@ -1,16 +1,7 @@
 import React, { Component, Fragment } from 'react'
-import { StyleSheet, View, AsyncStorage, Image } from 'react-native'
-import {
-  TouchableRipple,
-  Toolbar,
-  ToolbarContent,
-  Button,
-  Paragraph,
-  Divider,
-  Colors,
-  Paper,
-  ToolbarAction
-} from 'react-native-paper'
+import PropTypes from 'prop-types'
+import { StyleSheet, View, AsyncStorage } from 'react-native'
+import { Button, Paragraph, Colors } from 'react-native-paper'
 import { injectIntl, intlShape } from 'react-intl'
 import AmountText from './AmountText'
 import AmountInput from './AmountInput'
@@ -18,66 +9,46 @@ import TipDialog from './TipDialog'
 import provinces from './provinces'
 import ProvinceDialog from './ProvinceDialog'
 import AmountTextWithConversion from './AmountTextWithConversion'
+import AppToolbar from './AppToolbar'
+import AppContainer from './AppContainer'
+import AppRow from './AppRow'
+import RowsContainer from './RowsContainer'
 
 class Main extends Component {
   static propTypes = {
-    intl: intlShape.isRequired
+    intl: intlShape.isRequired,
+    amount: PropTypes.number,
+    provinceId: PropTypes.string,
+    tip: PropTypes.number,
+    taxDetailsVisible: PropTypes.bool,
+    showConvertedPrice: PropTypes.bool
   }
-
-  state = {
+  static defaultProps = {
     amount: 30,
-    editMode: false,
-    tipModalVisible: false,
-    provinceModalVisible: false,
+    provinceId: 'QC',
     tip: 0,
-    province: null,
     taxDetailsVisible: true,
-    loading: true,
     showConvertedPrice: true
   }
 
-  componentWillMount() {
-    this.loadStateFromStorage()
+  constructor(props) {
+    super(props)
+    this.state = {
+      amount: props.amount,
+      editMode: false,
+      tipModalVisible: false,
+      provinceModalVisible: false,
+      tip: props.tip,
+      province:
+        this.getProvince(props.provinceId) ||
+        this.getProvince(Main.defaultProps.provinceId),
+      taxDetailsVisible: props.taxDetailsVisible,
+      showConvertedPrice: props.showConvertedPrice
+    }
   }
 
-  async loadStateFromStorage() {
-    const [
-      amount,
-      province,
-      tip,
-      taxDetailsVisible,
-      showConvertedPrice
-    ] = await Promise.all(
-      [
-        'amount',
-        'province',
-        'tip',
-        'taxDetailsVisible',
-        'showConvertedPrice'
-      ].map(async key => {
-        const value = await AsyncStorage.getItem(key)
-        return value ? JSON.parse(value) : null
-      })
-    )
-    this.setState({
-      amount: amount === null ? this.state.amount : amount,
-      province:
-        province === null
-          ? this.state.province
-          : provinces.find(p => p.id === province) ||
-            provinces.find(p => p.id === 'QC'),
-      tip: tip === null ? this.state.tip : tip,
-      loading: province === null,
-      provinceModalVisible: province === null,
-      taxDetailsVisible:
-        taxDetailsVisible === null
-          ? this.state.taxDetailsVisible
-          : taxDetailsVisible,
-      showConvertedPrice:
-        showConvertedPrice === null
-          ? this.state.showConvertedPrice
-          : showConvertedPrice
-    })
+  getProvince(id) {
+    return provinces.find(p => p.id === id)
   }
 
   async saveStateInStorage() {
@@ -86,7 +57,7 @@ class Main extends Component {
         AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
       }
     )
-    AsyncStorage.setItem('province', JSON.stringify(this.state.province.id))
+    AsyncStorage.setItem('provinceId', JSON.stringify(this.state.province.id))
   }
 
   getTaxesPercentage() {
@@ -121,195 +92,188 @@ class Main extends Component {
     await this.saveStateInStorage()
   }
 
-  render() {
+  renderExcTaxPriceRow() {
+    const { editMode, amount } = this.state
     const { intl } = this.props
-    const {
-      amount,
-      editMode,
-      tip,
-      tipModalVisible,
-      province,
-      provinceModalVisible,
-      taxDetailsVisible,
-      loading,
-      showConvertedPrice
-    } = this.state
     return (
-      <Fragment>
-        <Toolbar>
-          <ToolbarContent
-            title={intl.formatMessage({ id: 'title' })}
-            subtitle={loading ? 'Chargement…' : province.name[intl.locale]}
-          />
-          <ToolbarAction
-            icon="my-location"
-            onPress={() => this.setState({ provinceModalVisible: true })}
-          />
-        </Toolbar>
-        {!loading && (
-          <View style={styles.container}>
-            <Image
-              source={require('../assets/background.jpg')}
-              style={styles.backgroundImage}
+      <AppRow onPress={() => editMode || this.setState({ editMode: true })}>
+        <Paragraph style={styles.label}>
+          {intl.formatMessage({ id: 'withoutTaxesPrice' })}
+        </Paragraph>
+        {editMode ? (
+          <Fragment>
+            <AmountInput
+              innerRef={ref => ref && ref.focus()}
+              amount={amount}
+              onBlur={amount => this.updateAmount(amount)}
+              style={styles.amountInput}
+              currencyStyle={styles.currency}
             />
-            <View style={styles.paperContainer}>
-              <Paper style={styles.paper}>
-                <TouchableRipple
-                  onPress={() =>
-                    this.state.editMode || this.setState({ editMode: true })
-                  }
-                >
-                  <View style={styles.row}>
-                    <Paragraph style={styles.label}>
-                      {intl.formatMessage({ id: 'withoutTaxesPrice' })}
-                    </Paragraph>
-                    {editMode ? (
-                      <Fragment>
-                        <AmountInput
-                          innerRef={ref => ref && ref.focus()}
-                          amount={amount}
-                          onBlur={amount => this.updateAmount(amount)}
-                          style={styles.amountInput}
-                          currencyStyle={styles.currency}
-                        />
-                      </Fragment>
-                    ) : (
-                      <AmountText style={styles.amount} amount={amount} />
-                    )}
-                  </View>
-                </TouchableRipple>
-                <Divider />
-                <TouchableRipple
-                  onPress={async () => {
-                    await this.setState({
-                      taxDetailsVisible: !taxDetailsVisible
-                    })
-                    await this.saveStateInStorage()
-                  }}
-                >
-                  <View style={styles.detailsRow}>
-                    <View style={styles.detailsRowContent}>
-                      <Paragraph style={styles.secondaryLabel}>
-                        {intl.formatMessage({ id: 'taxes' })} ({intl.formatNumber(
-                          this.getTaxesPercentage()
-                        )}{' '}
-                        %)
-                      </Paragraph>
-                      <AmountText
-                        style={styles.secondaryAmount}
-                        amount={this.getTaxes()}
-                      />
-                    </View>
-                    {taxDetailsVisible && (
-                      <View style={styles.detailRowDetails}>
-                        <View style={styles.detailsRowContent}>
-                          <Paragraph style={styles.secondaryLabelDetail}>
-                            {intl.formatMessage({ id: 'provinceTaxes' })} ({intl.formatNumber(
-                              province.tax_province
-                            )}{' '}
-                            %)
-                          </Paragraph>
-                          <AmountText
-                            style={styles.secondaryAmountDetail}
-                            amount={this.getProvinceTaxes()}
-                          />
-                        </View>
-                        <View style={styles.detailsRowContent}>
-                          <Paragraph style={styles.secondaryLabelDetail}>
-                            {intl.formatMessage({ id: 'canadaTaxes' })} ({intl.formatNumber(
-                              province.tax_canada
-                            )}{' '}
-                            %)
-                          </Paragraph>
-                          <AmountText
-                            style={styles.secondaryAmountDetail}
-                            amount={this.getCanadaTaxes()}
-                          />
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                </TouchableRipple>
-                {tip > 0 && (
-                  <Fragment>
-                    <Divider />
-                    <TouchableRipple
-                      onPress={() =>
-                        editMode || this.setState({ tipModalVisible: true })
-                      }
-                    >
-                      <View style={styles.row}>
-                        <Paragraph style={styles.secondaryLabel}>
-                          {intl.formatMessage({ id: 'tip' })} ({intl.formatNumber(
-                            tip * 100
-                          )}{' '}
-                          %)
-                        </Paragraph>
-                        <AmountText
-                          style={styles.secondaryAmount}
-                          amount={this.getTip()}
-                        />
-                      </View>
-                    </TouchableRipple>
-                  </Fragment>
-                )}
-                <Divider />
-                <TouchableRipple
-                  onPress={async () => {
-                    await this.setState({
-                      showConvertedPrice: !showConvertedPrice
-                    })
-                    await this.saveStateInStorage()
-                  }}
-                >
-                  <View style={styles.row}>
-                    <Paragraph style={styles.label}>
-                      {intl.formatMessage({ id: 'totalPrice' })}
-                    </Paragraph>
-                    <AmountTextWithConversion
-                      amountStyle={styles.amount}
-                      convertedAmountStyle={styles.convertedPrice}
-                      amount={this.getNetPrice()}
-                      showConvertedAmount={showConvertedPrice}
-                    />
-                  </View>
-                </TouchableRipple>
-              </Paper>
+          </Fragment>
+        ) : (
+          <AmountText style={styles.amount} amount={amount} />
+        )}
+      </AppRow>
+    )
+  }
+
+  renderTaxesRow() {
+    const { taxDetailsVisible, province } = this.state
+    const { intl } = this.props
+    return (
+      <AppRow
+        hasDetails={true}
+        onPress={async () => {
+          await this.setState({
+            taxDetailsVisible: !taxDetailsVisible
+          })
+          await this.saveStateInStorage()
+        }}
+      >
+        <View style={styles.detailsRowContent}>
+          <Paragraph style={styles.secondaryLabel}>
+            {intl.formatMessage({ id: 'taxes' })} ({intl.formatNumber(
+              this.getTaxesPercentage()
+            )}{' '}
+            %)
+          </Paragraph>
+          <AmountText style={styles.secondaryAmount} amount={this.getTaxes()} />
+        </View>
+        {taxDetailsVisible && (
+          <View style={styles.detailRowDetails}>
+            <View style={styles.detailsRowContent}>
+              <Paragraph style={styles.secondaryLabelDetail}>
+                {intl.formatMessage({ id: 'provinceTaxes' })} ({intl.formatNumber(
+                  province.tax_province
+                )}{' '}
+                %)
+              </Paragraph>
+              <AmountText
+                style={styles.secondaryAmountDetail}
+                amount={this.getProvinceTaxes()}
+              />
             </View>
-            {tip === 0 && (
-              <Button
-                primary
-                disabled={editMode}
-                icon="add-circle"
-                style={styles.addTipButton}
-                onPress={() => this.setState({ tipModalVisible: true })}
-              >
-                {intl.formatMessage({ id: 'addTip' })}
-              </Button>
-            )}
+            <View style={styles.detailsRowContent}>
+              <Paragraph style={styles.secondaryLabelDetail}>
+                {intl.formatMessage({ id: 'canadaTaxes' })} ({intl.formatNumber(
+                  province.tax_canada
+                )}{' '}
+                %)
+              </Paragraph>
+              <AmountText
+                style={styles.secondaryAmountDetail}
+                amount={this.getCanadaTaxes()}
+              />
+            </View>
           </View>
         )}
+      </AppRow>
+    )
+  }
+
+  renderTipRow() {
+    const { editMode, tip } = this.state
+    const { intl } = this.props
+    return (
+      <AppRow
+        onPress={() => editMode || this.setState({ tipModalVisible: true })}
+      >
+        <Paragraph style={styles.secondaryLabel}>
+          {intl.formatMessage({ id: 'tip' })} ({intl.formatNumber(tip * 100)} %)
+        </Paragraph>
+        <AmountText style={styles.secondaryAmount} amount={this.getTip()} />
+      </AppRow>
+    )
+  }
+
+  renderTotalPriceRow() {
+    const { showConvertedPrice } = this.state
+    const { intl } = this.props
+    return (
+      <AppRow
+        onPress={async () => {
+          await this.setState({
+            showConvertedPrice: !showConvertedPrice
+          })
+          await this.saveStateInStorage()
+        }}
+      >
+        <Paragraph style={styles.label}>
+          {intl.formatMessage({ id: 'totalPrice' })}
+        </Paragraph>
+        <AmountTextWithConversion
+          amountStyle={styles.amount}
+          convertedAmountStyle={styles.convertedPrice}
+          amount={this.getNetPrice()}
+          showConvertedAmount={showConvertedPrice}
+        />
+      </AppRow>
+    )
+  }
+
+  renderAddTipButton() {
+    const { editMode } = this.state
+    const { intl } = this.props
+    return (
+      <Button
+        primary
+        disabled={editMode}
+        icon="add-circle"
+        style={styles.addTipButton}
+        onPress={() => this.setState({ tipModalVisible: true })}
+      >
+        {intl.formatMessage({ id: 'addTip' })}
+      </Button>
+    )
+  }
+
+  async updateProvince(province) {
+    await this.setState({
+      province,
+      provinceModalVisible: false,
+      loading: false
+    })
+    await this.saveStateInStorage()
+  }
+
+  async updateTip(tip) {
+    await this.setState({ tip, tipModalVisible: false })
+    await this.saveStateInStorage()
+  }
+
+  render() {
+    const { tip, tipModalVisible, province, provinceModalVisible } = this.state
+
+    return (
+      <Fragment>
+        <AppToolbar
+          province={province}
+          onProvinceButtonPressed={() =>
+            this.setState({ provinceModalVisible: true })
+          }
+        />
+        <AppContainer>
+          <RowsContainer
+            rows={[
+              this.renderExcTaxPriceRow(),
+              this.renderTaxesRow(),
+              tip > 0 && this.renderTipRow(),
+              this.renderTotalPriceRow()
+            ]}
+          />
+          {tip === 0 && this.renderAddTipButton()}
+        </AppContainer>
 
         <TipDialog
           tip={tip}
           visible={tipModalVisible}
-          onDismiss={async tip => {
-            await this.setState({ tip, tipModalVisible: false })
-            await this.saveStateInStorage()
-          }}
+          onDismiss={tip => this.updateTip(tip)}
         />
         <ProvinceDialog
           selectedProvince={province}
           provinces={provinces}
           visible={provinceModalVisible}
-          onDismiss={async province => {
-            await this.setState({
-              province,
-              provinceModalVisible: false,
-              loading: false
-            })
-            await this.saveStateInStorage()
-          }}
+          onDismiss={province => this.updateProvince(province)}
         />
       </Fragment>
     )
@@ -341,31 +305,6 @@ const secondaryProps = {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.blueGrey50
-  },
-  backgroundImage: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    resizeMode: 'cover',
-    opacity: 0.2
-  },
-  title: {
-    fontSize: 24
-  },
-  paperContainer: {
-    // flex: 1,
-    padding: 10,
-    width: '100%',
-    alignItems: 'center'
-  },
-  paper: {
-    elevation: 2,
-    maxWidth: 500,
-    width: '100%'
-  },
   amountInput: {
     textAlign: 'right',
     flex: 1,
@@ -387,12 +326,6 @@ const styles = StyleSheet.create({
     ...secondaryProps,
     ...amountProps,
     fontSize: 14
-  },
-  row: {
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.grey50
   },
   detailsRow: {
     paddingLeft: 15,
