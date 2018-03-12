@@ -26,6 +26,7 @@ class AmountTextWithConversion extends Component {
         <AmountText style={amountStyle} amount={amount} />
         {showConvertedAmount && (
           <AmountText
+            isSecondary
             style={convertedAmountStyle}
             amount={amount / 1.58}
             currency="€"

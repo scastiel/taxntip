@@ -1,41 +1,40 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { Text, View } from 'react-native'
+import { Text, View, StyleSheet } from 'react-native'
 import { injectIntl, intlShape } from 'react-intl'
 
 class AmountText extends Component {
   static propTypes = {
     amount: PropTypes.number,
     currency: PropTypes.string,
-    intl: intlShape.isRequired
+    intl: intlShape.isRequired,
+    style: PropTypes.any,
+    isSecondary: PropTypes.bool
   }
   static defaultProps = {
-    currency: '$'
+    currency: '$',
+    isSecondary: false
   }
 
   render() {
-    const { amount, currency, intl, ...props } = this.props
+    const { amount, currency, intl, style, isSecondary } = this.props
     const formattedAmount = intl.formatNumber(amount, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })
 
     const amountComp = (
-      <Text
-        style={[
-          {
-            textAlign: 'right'
-          },
-          props.style
-        ]}
-      >
+      <Text style={[styles.amount, isSecondary && styles.secondary, style]}>
         {formattedAmount}
       </Text>
     )
 
     const currencyComp = (
       <View style={{ width: 20, height: 20 }}>
-        <Text style={[props.style, { textAlign: 'center' }]}> {currency}</Text>
+        <Text style={[styles.currency, isSecondary && styles.secondary, style]}>
+          {' '}
+          {currency}
+        </Text>
       </View>
     )
 
@@ -56,5 +55,25 @@ class AmountText extends Component {
     )
   }
 }
+
+const amountStyle = {
+  fontFamily: 'RobotoMedium',
+  fontSize: 18,
+  letterSpacing: 1
+}
+
+export const styles = StyleSheet.create({
+  amount: {
+    ...amountStyle,
+    textAlign: 'right'
+  },
+  currency: {
+    ...amountStyle,
+    textAlign: 'center'
+  },
+  secondary: {
+    color: 'grey'
+  }
+})
 
 export default injectIntl(AmountText)

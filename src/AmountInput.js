@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { TextInput, Text } from 'react-native'
+import { TextInput, Text, StyleSheet } from 'react-native'
 import { injectIntl, intlShape } from 'react-intl'
+import { styles as amountTextStyles } from './AmountText'
 
 class AmountInput extends Component {
   static propTypes = {
@@ -20,7 +21,7 @@ class AmountInput extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      amountText: props.intl.formatNumber(props.amount)
+      amountText: props.intl.formatNumber(props.amount).replace(/\s/g, '')
     }
   }
 
@@ -49,11 +50,12 @@ class AmountInput extends Component {
         returnKeyType="done"
         onChangeText={text => this.setState({ amountText: text })}
         onBlur={() => this.updateAmount()}
+        style={[amountTextStyles.amount, styles.amountInput]}
         {...props}
       />
     )
 
-    const currencyComp = <Text style={currencyStyle}> $</Text>
+    const currencyComp = <Text style={amountTextStyles.currency}> $</Text>
 
     return intl.locale === 'fr' ? (
       <Fragment>
@@ -66,5 +68,12 @@ class AmountInput extends Component {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  amountInput: {
+    textAlign: 'right',
+    flex: 1
+  }
+})
 
 export default injectIntl(AmountInput)

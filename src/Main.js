@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { StyleSheet, View } from 'react-native'
-import { Button, Paragraph, Colors } from 'react-native-paper'
+import { StyleSheet } from 'react-native'
+import { Button } from 'react-native-paper'
 import { injectIntl, intlShape } from 'react-intl'
 import AmountText from './AmountText'
 import AmountInput from './AmountInput'
@@ -13,6 +13,7 @@ import AppToolbar from './AppToolbar'
 import AppContainer from './AppContainer'
 import AppRow from './AppRow'
 import RowsContainer from './RowsContainer'
+import { fontProps } from './style'
 
 class Main extends Component {
   static propTypes = {
@@ -90,18 +91,16 @@ class Main extends Component {
     const { editMode, amount } = this.state
     const { intl } = this.props
     return (
-      <AppRow onPress={() => editMode || this.setState({ editMode: true })}>
-        <Paragraph style={styles.label}>
-          {intl.formatMessage({ id: 'withoutTaxesPrice' })}
-        </Paragraph>
+      <AppRow
+        label={intl.formatMessage({ id: 'withoutTaxesPrice' })}
+        onPress={() => editMode || this.setState({ editMode: true })}
+      >
         {editMode ? (
           <Fragment>
             <AmountInput
               innerRef={ref => ref && ref.focus()}
               amount={amount}
               onBlur={amount => this.updateAmount(amount)}
-              style={styles.amountInput}
-              currencyStyle={styles.currency}
             />
           </Fragment>
         ) : (
@@ -113,69 +112,71 @@ class Main extends Component {
 
   renderTaxesRow() {
     const { taxDetailsVisible, province } = this.state
-    const { intl, saveStateInStorage } = this.props
+    const { saveStateInStorage } = this.props
+
     return (
       <AppRow
-        hasDetails={true}
+        isSecondary
         onPress={async () => {
           await this.setState({
             taxDetailsVisible: !taxDetailsVisible
           })
           await saveStateInStorage(this.state)
         }}
+        label={this.formatPercentageLabel('taxes', this.getTaxesPercentage())}
+        detailRows={
+          taxDetailsVisible
+            ? [
+                {
+                  label: this.formatPercentageLabel(
+                    'provinceTaxes',
+                    province.tax_province
+                  ),
+                  amount: this.getProvinceTaxes()
+                },
+                {
+                  label: this.formatPercentageLabel(
+                    'canadaTaxes',
+                    province.tax_canada
+                  ),
+                  amount: this.getCanadaTaxes()
+                }
+              ]
+            : null
+        }
       >
-        <View style={styles.detailsRowContent}>
-          <Paragraph style={styles.secondaryLabel}>
-            {intl.formatMessage({ id: 'taxes' })} ({intl.formatNumber(
-              this.getTaxesPercentage()
-            )}{' '}
-            %)
-          </Paragraph>
-          <AmountText style={styles.secondaryAmount} amount={this.getTaxes()} />
-        </View>
-        {taxDetailsVisible && (
-          <View style={styles.detailRowDetails}>
-            <View style={styles.detailsRowContent}>
-              <Paragraph style={styles.secondaryLabelDetail}>
-                {intl.formatMessage({ id: 'provinceTaxes' })} ({intl.formatNumber(
-                  province.tax_province
-                )}{' '}
-                %)
-              </Paragraph>
-              <AmountText
-                style={styles.secondaryAmountDetail}
-                amount={this.getProvinceTaxes()}
-              />
-            </View>
-            <View style={styles.detailsRowContent}>
-              <Paragraph style={styles.secondaryLabelDetail}>
-                {intl.formatMessage({ id: 'canadaTaxes' })} ({intl.formatNumber(
-                  province.tax_canada
-                )}{' '}
-                %)
-              </Paragraph>
-              <AmountText
-                style={styles.secondaryAmountDetail}
-                amount={this.getCanadaTaxes()}
-              />
-            </View>
-          </View>
-        )}
+        <AmountText
+          isSecondary
+          style={[styles.amount]}
+          amount={this.getTaxes()}
+        />
       </AppRow>
+    )
+  }
+
+  formatPercentageLabel(labelId, percentage) {
+    const { intl } = this.props
+    return (
+      intl.formatMessage({ id: labelId }) +
+      ' (' +
+      intl.formatNumber(percentage) +
+      ' %)'
     )
   }
 
   renderTipRow() {
     const { editMode, tip } = this.state
-    const { intl } = this.props
     return (
       <AppRow
+        label={this.formatPercentageLabel('tip', tip * 100)}
+        isSecondary
         onPress={() => editMode || this.setState({ tipModalVisible: true })}
       >
-        <Paragraph style={styles.secondaryLabel}>
-          {intl.formatMessage({ id: 'tip' })} ({intl.formatNumber(tip * 100)} %)
-        </Paragraph>
-        <AmountText style={styles.secondaryAmount} amount={this.getTip()} />
+        <AmountText
+          isSecondary
+          style={[styles.amount]}
+          amount={this.getTip()}
+        />
       </AppRow>
     )
   }
@@ -185,6 +186,7 @@ class Main extends Component {
     const { intl, saveStateInStorage } = this.props
     return (
       <AppRow
+        label={intl.formatMessage({ id: 'totalPrice' })}
         onPress={async () => {
           await this.setState({
             showConvertedPrice: !showConvertedPrice
@@ -192,12 +194,9 @@ class Main extends Component {
           await saveStateInStorage(this.state)
         }}
       >
-        <Paragraph style={styles.label}>
-          {intl.formatMessage({ id: 'totalPrice' })}
-        </Paragraph>
         <AmountTextWithConversion
           amountStyle={styles.amount}
-          convertedAmountStyle={styles.convertedPrice}
+          convertedAmountStyle={[styles.convertedPrice]}
           amount={this.getNetPrice()}
           showConvertedAmount={showConvertedPrice}
         />
@@ -276,80 +275,7 @@ class Main extends Component {
   }
 }
 
-const fontProps = {
-  fontSize: 18,
-  fontFamily: 'Roboto'
-}
-
-const amountFontProps = {
-  fontFamily: 'RobotoMedium',
-  fontSize: 18,
-  letterSpacing: 1
-}
-
-const labelProps = {
-  flex: 1,
-  ...fontProps
-}
-
-const amountProps = {
-  ...amountFontProps
-}
-
-const secondaryProps = {
-  color: 'grey'
-}
-
 const styles = StyleSheet.create({
-  amountInput: {
-    textAlign: 'right',
-    flex: 1,
-    ...amountFontProps
-  },
-  currency: {
-    ...amountFontProps,
-    width: 20,
-    textAlign: 'center'
-  },
-  amount: {
-    ...amountProps
-  },
-  secondaryAmount: {
-    ...secondaryProps,
-    ...amountProps
-  },
-  secondaryAmountDetail: {
-    ...secondaryProps,
-    ...amountProps,
-    fontSize: 14
-  },
-  detailsRow: {
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 15,
-    paddingBottom: 15,
-    flexDirection: 'column',
-    backgroundColor: Colors.grey50
-  },
-  detailsRowContent: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  detailRowDetails: {
-    marginTop: 5
-  },
-  label: {
-    ...labelProps
-  },
-  secondaryLabel: {
-    ...secondaryProps,
-    ...labelProps
-  },
-  secondaryLabelDetail: {
-    ...secondaryProps,
-    ...labelProps,
-    fontSize: 14
-  },
   hint: {
     ...fontProps
   },
@@ -358,8 +284,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   convertedPrice: {
-    ...secondaryProps,
-    ...amountProps,
     fontSize: 14,
     marginTop: 5
   }
