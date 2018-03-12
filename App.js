@@ -69,6 +69,15 @@ export default class App extends React.Component {
     await this.setState({ savedState })
   }
 
+  async saveStateInStorage(state) {
+    ;['amount', 'tip', 'taxDetailsVisible', 'showConvertedPrice'].forEach(
+      key => {
+        AsyncStorage.setItem(key, JSON.stringify(state[key]))
+      }
+    )
+    AsyncStorage.setItem('provinceId', JSON.stringify(state.province.id))
+  }
+
   async loadAssets() {
     await Promise.all([
       this.loadLocale(),
@@ -86,7 +95,10 @@ export default class App extends React.Component {
     return assetsLoaded ? (
       <PaperProvider theme={theme}>
         <IntlProvider locale={locale} messages={messages[locale]}>
-          <Main {...savedState} />
+          <Main
+            {...savedState}
+            saveStateInStorage={state => this.saveStateInStorage(state)}
+          />
         </IntlProvider>
       </PaperProvider>
     ) : (

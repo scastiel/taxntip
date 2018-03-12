@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { StyleSheet, View, AsyncStorage } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Button, Paragraph, Colors } from 'react-native-paper'
 import { injectIntl, intlShape } from 'react-intl'
 import AmountText from './AmountText'
@@ -21,14 +21,16 @@ class Main extends Component {
     provinceId: PropTypes.string,
     tip: PropTypes.number,
     taxDetailsVisible: PropTypes.bool,
-    showConvertedPrice: PropTypes.bool
+    showConvertedPrice: PropTypes.bool,
+    saveStateInStorage: PropTypes.func
   }
   static defaultProps = {
     amount: 30,
     provinceId: 'QC',
     tip: 0,
     taxDetailsVisible: true,
-    showConvertedPrice: true
+    showConvertedPrice: true,
+    saveStateInStorage: () => {}
   }
 
   constructor(props) {
@@ -49,15 +51,6 @@ class Main extends Component {
 
   getProvince(id) {
     return provinces.find(p => p.id === id)
-  }
-
-  async saveStateInStorage() {
-    ;['amount', 'tip', 'taxDetailsVisible', 'showConvertedPrice'].forEach(
-      key => {
-        AsyncStorage.setItem(key, JSON.stringify(this.state[key]))
-      }
-    )
-    AsyncStorage.setItem('provinceId', JSON.stringify(this.state.province.id))
   }
 
   getTaxesPercentage() {
@@ -88,8 +81,9 @@ class Main extends Component {
   }
 
   async updateAmount(amount) {
+    const { saveStateInStorage } = this.props
     await this.setState({ amount, editMode: false })
-    await this.saveStateInStorage()
+    await saveStateInStorage(this.state)
   }
 
   renderExcTaxPriceRow() {
@@ -119,7 +113,7 @@ class Main extends Component {
 
   renderTaxesRow() {
     const { taxDetailsVisible, province } = this.state
-    const { intl } = this.props
+    const { intl, saveStateInStorage } = this.props
     return (
       <AppRow
         hasDetails={true}
@@ -127,7 +121,7 @@ class Main extends Component {
           await this.setState({
             taxDetailsVisible: !taxDetailsVisible
           })
-          await this.saveStateInStorage()
+          await saveStateInStorage(this.state)
         }}
       >
         <View style={styles.detailsRowContent}>
@@ -188,14 +182,14 @@ class Main extends Component {
 
   renderTotalPriceRow() {
     const { showConvertedPrice } = this.state
-    const { intl } = this.props
+    const { intl, saveStateInStorage } = this.props
     return (
       <AppRow
         onPress={async () => {
           await this.setState({
             showConvertedPrice: !showConvertedPrice
           })
-          await this.saveStateInStorage()
+          await saveStateInStorage(this.state)
         }}
       >
         <Paragraph style={styles.label}>
@@ -228,17 +222,19 @@ class Main extends Component {
   }
 
   async updateProvince(province) {
+    const { saveStateInStorage } = this.props
     await this.setState({
       province,
       provinceModalVisible: false,
       loading: false
     })
-    await this.saveStateInStorage()
+    await saveStateInStorage(this.state)
   }
 
   async updateTip(tip) {
+    const { saveStateInStorage } = this.props
     await this.setState({ tip, tipModalVisible: false })
-    await this.saveStateInStorage()
+    await saveStateInStorage(this.state)
   }
 
   render() {
