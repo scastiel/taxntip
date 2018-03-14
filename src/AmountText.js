@@ -18,10 +18,13 @@ class AmountText extends Component {
 
   render() {
     const { amount, currency, intl, style, isSecondary } = this.props
-    const formattedAmount = intl.formatNumber(amount, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })
+    const formattedAmount =
+      amount === null
+        ? '-'
+        : intl.formatNumber(amount, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })
 
     const amountComp = (
       <Text style={[styles.amount, isSecondary && styles.secondary, style]}>

@@ -2,16 +2,20 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { View } from 'react-native'
 import AmountText from './AmountText'
+import withConversionRates from './withConversionRates'
 
 class AmountTextWithConversion extends Component {
   static propTypes = {
     amount: PropTypes.number,
     amountStyle: PropTypes.any,
     convertedAmountStyle: PropTypes.any,
-    showConvertedAmount: PropTypes.bool
+    showConvertedAmount: PropTypes.bool,
+    rates: PropTypes.objectOf(PropTypes.number),
+    ratesLoaded: PropTypes.bool
   }
   static defaultProps = {
-    showConvertedAmount: false
+    showConvertedAmount: false,
+    ratesLoaded: false
   }
 
   render() {
@@ -19,7 +23,9 @@ class AmountTextWithConversion extends Component {
       amount,
       amountStyle,
       convertedAmountStyle,
-      showConvertedAmount
+      showConvertedAmount,
+      rates,
+      ratesLoaded
     } = this.props
     return (
       <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
@@ -28,7 +34,7 @@ class AmountTextWithConversion extends Component {
           <AmountText
             isSecondary
             style={convertedAmountStyle}
-            amount={amount / 1.58}
+            amount={ratesLoaded ? amount / (rates.CAD / rates.EUR) : null}
             currency="€"
           />
         )}
@@ -37,4 +43,4 @@ class AmountTextWithConversion extends Component {
   }
 }
 
-export default AmountTextWithConversion
+export default withConversionRates(AmountTextWithConversion)
