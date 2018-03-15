@@ -19,13 +19,13 @@
     },
     "ios": {
       "bundleIdentifier": "me.castiel.taxntip",
-      "buildNumber": "3",
+      "buildNumber": "5",
       "icon": "./assets/icons/ios/iTunesArtwork@3x.png",
       "supportsTablet": true
     },
     "android": {
       "package": "me.castiel.taxntip",
-      "versionCode": 4,
+      "versionCode": 5,
       "icon": "./assets/icons/android/web_hi_res_512.png",
       "permissions": []
     }
