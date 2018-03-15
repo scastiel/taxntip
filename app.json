@@ -12,6 +12,10 @@
       "backgroundColor": "#fafafa",
       "icon": "./assets/taxntip.png"
     },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover"
+    },
     "androidStatusBarColor": "#c62828",
     "androidStatusBar": {
       "barStyle": "light-content",
@@ -21,13 +25,27 @@
       "bundleIdentifier": "me.castiel.taxntip",
       "buildNumber": "5",
       "icon": "./assets/icons/ios/iTunesArtwork@3x.png",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./assets/splash.png",
+        "tabletImage": "./assets/splash.png",
+        "resizeMode": "cover"
+      }
     },
     "android": {
       "package": "me.castiel.taxntip",
       "versionCode": 5,
       "icon": "./assets/icons/android/web_hi_res_512.png",
-      "permissions": []
+      "permissions": [],
+      "splash": {
+        "ldpi": "./assets/splash.png",
+        "mdpi": "./assets/splash.png",
+        "hdpi": "./assets/splash.png",
+        "xhdpi": "./assets/splash.png",
+        "xxhdpi": "./assets/splash.png",
+        "xxxhdpi": "./assets/splash.png",
+        "resizeMode": "cover"
+      }
     }
   }
 }

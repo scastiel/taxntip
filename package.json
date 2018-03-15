@@ -14,7 +14,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-standard": "^3.0.1",
-    "exp": "^49.2.2",
+    "exp": "^50.0.0",
     "jest-expo": "25.0.0",
     "prettier": "^1.11.1",
     "react-native-scripts": "1.11.1",
@@ -50,10 +50,14 @@
     "singleQuote": true
   },
   "babel": {
-    "presets": ["expo"],
+    "presets": [
+      "expo"
+    ],
     "env": {
       "development": {
-        "plugins": ["transform-react-jsx-source"]
+        "plugins": [
+          "transform-react-jsx-source"
+        ]
       }
     }
   },
