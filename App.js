@@ -95,7 +95,8 @@ export default class App extends React.Component {
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
         RobotoMedium: require('./assets/roboto/Roboto-Medium.ttf'),
-        MaterialIcons: require('./node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf')
+        MaterialIcons: require('./node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf'),
+        'Material Icons': require('./node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf')
       })
     ])
   }
