@@ -238,15 +238,15 @@ class Main extends Component {
     const { tip, tipModalVisible, province, provinceModalVisible } = this.state
     return (
       <Fragment>
-        {province && (
-          <Fragment>
-            <AppToolbar
-              province={province}
-              onProvinceButtonPressed={() =>
-                this.setState({ provinceModalVisible: true })
-              }
-            />
-            <AppContainer>
+        <AppContainer>
+          {province && (
+            <Fragment>
+              <AppToolbar
+                province={province}
+                onProvinceButtonPressed={() =>
+                  this.setState({ provinceModalVisible: true })
+                }
+              />
               <RowsContainer
                 rows={[
                   this.renderExcTaxPriceRow(),
@@ -256,9 +256,9 @@ class Main extends Component {
                 ]}
               />
               {!tip && this.renderAddTipButton()}
-            </AppContainer>
-          </Fragment>
-        )}
+            </Fragment>
+          )}
+        </AppContainer>
 
         <TipDialog
           tip={tip}
