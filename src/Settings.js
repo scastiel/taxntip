@@ -1,14 +1,29 @@
 import React, { Component } from 'react'
-// import PropTypes from 'prop-types'
-import { Text, View } from 'react-native'
+import PropTypes from 'prop-types'
+import { View, Platform } from 'react-native'
 import AppContainer from './AppContainer'
 import provinces from './provinces'
 import ProvinceDialog from './ProvinceDialog'
-import { injectIntl } from 'react-intl'
-import { Button, Paragraph, Switch, TouchableRipple } from 'react-native-paper'
+import RowsContainer from './RowsContainer'
+import AppRow from './AppRow'
+import { injectIntl, intlShape } from 'react-intl'
+import { TouchableRipple, Switch, Caption } from 'react-native-paper'
 
 class Settings extends Component {
-  static propTypes = {}
+  static propTypes = {
+    intl: intlShape.isRequired,
+    provinceId: PropTypes.string,
+    updateProvince: PropTypes.func,
+    taxDetailsVisible: PropTypes.bool,
+    updateTaxDetailsVisible: PropTypes.func,
+    convertedPriceVisible: PropTypes.bool,
+    updateConvertedPriceVisible: PropTypes.func
+  }
+  static propTypes = {
+    updateProvince: () => {},
+    updateTaxDetailsVisible: () => {},
+    updateConvertedPriceVisible: () => {}
+  }
 
   constructor(props) {
     super(props)
@@ -27,53 +42,79 @@ class Settings extends Component {
     this.setState({ provinceModalVisible: false })
   }
 
+  renderProvinceRow() {
+    const { provinceId, intl } = this.props
+    const province = provinceId && this.getProvince(provinceId)
+    return (
+      <AppRow
+        key="province"
+        label="Province"
+        onPress={() => this.setState({ provinceModalVisible: true })}
+      >
+        <Caption>{province && province.name[intl.locale]}</Caption>
+      </AppRow>
+    )
+  }
+
+  renderSwitch({ value, onValueChange }) {
+    return Platform.OS === 'android' ? (
+      <TouchableRipple onPress={onValueChange}>
+        <View pointerEvents="none">
+          <Switch value={value} />
+        </View>
+      </TouchableRipple>
+    ) : (
+      <Switch value={value} onValueChange={onValueChange} />
+    )
+  }
+
+  renderTaxesDetailRow() {
+    const { taxDetailsVisible, updateTaxDetailsVisible } = this.props
+    return (
+      <AppRow key="taxes" label="Afficher le détail des taxes">
+        {this.renderSwitch({
+          value: taxDetailsVisible,
+          onValueChange: () => {
+            updateTaxDetailsVisible(!taxDetailsVisible)
+          }
+        })}
+      </AppRow>
+    )
+  }
+
+  renderConvertedPriceRow() {
+    const { convertedPriceVisible, updateConvertedPriceVisible } = this.props
+    return (
+      <AppRow key="convertedPrice" label="Convertir le prix total en euros">
+        {this.renderSwitch({
+          value: convertedPriceVisible,
+          onValueChange: () => {
+            updateConvertedPriceVisible(!convertedPriceVisible)
+          }
+        })}
+      </AppRow>
+    )
+  }
+
   render() {
-    const {
-      provinceId,
-      taxDetailsVisible,
-      updateTaxDetailsVisible,
-      convertedPriceVisible,
-      updateConvertedPriceVisible,
-      intl
-    } = this.props
+    const { provinceId } = this.props
     const { provinceModalVisible } = this.state
     const province = provinceId && this.getProvince(provinceId)
     return (
       <AppContainer>
-        <Text>Province: {province && province.name[intl.locale]}</Text>
-        <Button
-          onPress={() => {
-            this.setState({ provinceModalVisible: true })
-          }}
-        >
-          Edit
-        </Button>
+        <RowsContainer
+          rows={[
+            this.renderProvinceRow(),
+            this.renderTaxesDetailRow(),
+            this.renderConvertedPriceRow()
+          ]}
+        />
         <ProvinceDialog
           selectedProvince={province}
           provinces={provinces}
           visible={provinceModalVisible}
           onDismiss={province => this.updateProvince(province)}
         />
-        <TouchableRipple
-          onPress={() => updateTaxDetailsVisible(!taxDetailsVisible)}
-        >
-          <View style={{ flexDirection: 'row' }}>
-            <View pointerEvents="none">
-              <Switch value={taxDetailsVisible} />
-            </View>
-            <Paragraph>Afficher le détail des taxes</Paragraph>
-          </View>
-        </TouchableRipple>
-        <TouchableRipple
-          onPress={() => updateConvertedPriceVisible(!convertedPriceVisible)}
-        >
-          <View style={{ flexDirection: 'row' }}>
-            <View pointerEvents="none">
-              <Switch value={convertedPriceVisible} />
-            </View>
-            <Paragraph>Afficher le prix total converti en euros</Paragraph>
-          </View>
-        </TouchableRipple>
       </AppContainer>
     )
   }
