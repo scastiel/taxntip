@@ -48,7 +48,7 @@ class Settings extends Component {
     return (
       <AppRow
         key="province"
-        label="Province"
+        label={intl.formatMessage({ id: 'province' })}
         onPress={() => this.setState({ provinceModalVisible: true })}
       >
         <Caption>{province && province.name[intl.locale]}</Caption>
@@ -69,9 +69,9 @@ class Settings extends Component {
   }
 
   renderTaxesDetailRow() {
-    const { taxDetailsVisible, updateTaxDetailsVisible } = this.props
+    const { taxDetailsVisible, updateTaxDetailsVisible, intl } = this.props
     return (
-      <AppRow key="taxes" label="Afficher le détail des taxes">
+      <AppRow key="taxes" label={intl.formatMessage({ id: 'showTaxDetails' })}>
         {this.renderSwitch({
           value: taxDetailsVisible,
           onValueChange: () => {
@@ -83,9 +83,16 @@ class Settings extends Component {
   }
 
   renderConvertedPriceRow() {
-    const { convertedPriceVisible, updateConvertedPriceVisible } = this.props
+    const {
+      convertedPriceVisible,
+      updateConvertedPriceVisible,
+      intl
+    } = this.props
     return (
-      <AppRow key="convertedPrice" label="Convertir le prix total en euros">
+      <AppRow
+        key="convertedPrice"
+        label={intl.formatMessage({ id: 'showConvertedPrice' })}
+      >
         {this.renderSwitch({
           value: convertedPriceVisible,
           onValueChange: () => {

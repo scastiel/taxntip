@@ -11,7 +11,9 @@ export default {
     chooseTip: 'Choose a tip',
     noTip: 'No tip',
     province: 'Province',
-    settings: 'Settings'
+    settings: 'Settings',
+    showTaxDetails: 'Show taxes detail',
+    showConvertedPrice: 'Show price converted in euros'
   },
   fr: {
     title: 'Taxes et pourboires',
@@ -25,6 +27,8 @@ export default {
     chooseTip: 'Choisir un pourboire',
     noTip: 'Aucun pourboire',
     province: 'Province',
-    settings: 'Préférences'
+    settings: 'Préférences',
+    showTaxDetails: 'Afficher le détail des taxes',
+    showConvertedPrice: 'Afficher le prix converti en euros'
   }
 }

@@ -25,11 +25,6 @@ class Main extends Component {
     updateTip: PropTypes.func
   }
   static defaultProps = {
-    amount: 30,
-    provinceId: null,
-    tip: 0,
-    taxDetailsVisible: false,
-    convertedPriceVisible: false,
     updateAmount: () => {},
     updateTip: () => {}
   }

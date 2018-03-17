@@ -58,18 +58,22 @@ export default class App extends React.Component {
     await this.setState({ locale })
   }
 
+  static savedStateWithDefaultValues = {
+    amount: 28,
+    provinceId: 'QC',
+    tip: 0,
+    taxDetailsVisible: true,
+    convertedPriceVisible: true
+  }
+
   async loadStateFromStorage() {
     const savedState = (await Promise.all(
-      [
-        'amount',
-        'provinceId',
-        'tip',
-        'taxDetailsVisible',
-        'convertedPriceVisible'
-      ].map(async key => {
-        const value = await AsyncStorage.getItem(key)
-        return { key, value: value ? JSON.parse(value) : null }
-      })
+      Object.entries(App.savedStateWithDefaultValues).map(
+        async ([key, defaultValue]) => {
+          const value = await AsyncStorage.getItem(key)
+          return { key, value: value ? JSON.parse(value) : defaultValue }
+        }
+      )
     )).reduce(
       (acc, { key, value }) =>
         value === null ? acc : { ...acc, [key]: value },
