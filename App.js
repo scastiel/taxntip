@@ -1,5 +1,5 @@
 import React from 'react'
-import { StatusBar, AsyncStorage } from 'react-native'
+import { StatusBar } from 'react-native'
 import {
   DefaultTheme,
   Provider as PaperProvider,
@@ -9,6 +9,7 @@ import { ScreenOrientation, Font, AppLoading, Asset, Util } from 'expo'
 import { IntlProvider, addLocaleData } from 'react-intl'
 import messages from './src/i18n'
 import RootNavigator from './src/RootNavigator'
+import { Provider as StateProvider } from './src/StateContext'
 
 const theme = {
   ...DefaultTheme,
@@ -58,34 +59,9 @@ export default class App extends React.Component {
     await this.setState({ locale })
   }
 
-  static savedStateWithDefaultValues = {
-    amount: 28,
-    provinceId: 'QC',
-    tip: 0,
-    taxDetailsVisible: true,
-    convertedPriceVisible: true
-  }
-
-  async loadStateFromStorage() {
-    const savedState = (await Promise.all(
-      Object.entries(App.savedStateWithDefaultValues).map(
-        async ([key, defaultValue]) => {
-          const value = await AsyncStorage.getItem(key)
-          return { key, value: value ? JSON.parse(value) : defaultValue }
-        }
-      )
-    )).reduce(
-      (acc, { key, value }) =>
-        value === null ? acc : { ...acc, [key]: value },
-      {}
-    )
-    await this.setState({ ...savedState })
-  }
-
   async loadAssets() {
     await Promise.all([
       this.loadLocale(),
-      this.loadStateFromStorage(),
       Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
@@ -97,38 +73,14 @@ export default class App extends React.Component {
   }
 
   render() {
-    const {
-      amount,
-      provinceId,
-      tip,
-      taxDetailsVisible,
-      convertedPriceVisible,
-      assetsLoaded,
-      locale
-    } = this.state
-
-    const valueUpdater = name => value => {
-      this.setState({ [name]: value })
-      AsyncStorage.setItem(name, JSON.stringify(value))
-    }
+    const { assetsLoaded, locale } = this.state
 
     return assetsLoaded ? (
       <PaperProvider theme={theme}>
         <IntlProvider locale={locale} messages={messages[locale]}>
-          <RootNavigator
-            screenProps={{
-              amount,
-              provinceId,
-              tip,
-              taxDetailsVisible,
-              convertedPriceVisible,
-              updateProvince: valueUpdater('provinceId'),
-              updateAmount: valueUpdater('amount'),
-              updateTip: valueUpdater('tip'),
-              updateTaxDetailsVisible: valueUpdater('taxDetailsVisible'),
-              updateConvertedPriceVisible: valueUpdater('convertedPriceVisible')
-            }}
-          />
+          <StateProvider>
+            <RootNavigator />
+          </StateProvider>
         </IntlProvider>
       </PaperProvider>
     ) : (

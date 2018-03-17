@@ -36,6 +36,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "create-react-context": "^0.2.1",
     "expo": "^25.0.0",
     "intl": "^1.2.5",
     "ramda": "^0.25.0",
@@ -52,10 +53,14 @@
     "singleQuote": true
   },
   "babel": {
-    "presets": ["expo"],
+    "presets": [
+      "expo"
+    ],
     "env": {
       "development": {
-        "plugins": ["transform-react-jsx-source"]
+        "plugins": [
+          "transform-react-jsx-source"
+        ]
       }
     }
   },

@@ -8,6 +8,9 @@ import RowsContainer from './RowsContainer'
 import AppRow from './AppRow'
 import { injectIntl, intlShape } from 'react-intl'
 import { TouchableRipple, Switch, Caption } from 'react-native-paper'
+import { compose } from 'recompose'
+import { withState } from './StateContext'
+import { pick } from 'ramda'
 
 class Settings extends Component {
   static propTypes = {
@@ -47,7 +50,6 @@ class Settings extends Component {
     const province = provinceId && this.getProvince(provinceId)
     return (
       <AppRow
-        key="province"
         label={intl.formatMessage({ id: 'province' })}
         onPress={() => this.setState({ provinceModalVisible: true })}
       >
@@ -71,7 +73,7 @@ class Settings extends Component {
   renderTaxesDetailRow() {
     const { taxDetailsVisible, updateTaxDetailsVisible, intl } = this.props
     return (
-      <AppRow key="taxes" label={intl.formatMessage({ id: 'showTaxDetails' })}>
+      <AppRow label={intl.formatMessage({ id: 'showTaxDetails' })}>
         {this.renderSwitch({
           value: taxDetailsVisible,
           onValueChange: () => {
@@ -89,10 +91,7 @@ class Settings extends Component {
       intl
     } = this.props
     return (
-      <AppRow
-        key="convertedPrice"
-        label={intl.formatMessage({ id: 'showConvertedPrice' })}
-      >
+      <AppRow label={intl.formatMessage({ id: 'showConvertedPrice' })}>
         {this.renderSwitch({
           value: convertedPriceVisible,
           onValueChange: () => {
@@ -127,4 +126,14 @@ class Settings extends Component {
   }
 }
 
-export default injectIntl(Settings)
+export default compose(
+  injectIntl,
+  withState(
+    pick(['provinceId', 'taxDetailsVisible', 'convertedPriceVisible']),
+    pick([
+      'updateProvince',
+      'updateTaxDetailsVisible',
+      'updateConvertedPriceVisible'
+    ])
+  )
+)(Settings)

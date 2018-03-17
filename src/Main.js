@@ -12,10 +12,14 @@ import AppContainer from './AppContainer'
 import AppRow from './AppRow'
 import RowsContainer from './RowsContainer'
 import { fontProps } from './style'
+import { withState } from './StateContext'
+import { pick } from 'ramda'
+import { compose } from 'recompose'
 
 class Main extends Component {
   static propTypes = {
     intl: intlShape.isRequired,
+    loaded: PropTypes.bool,
     amount: PropTypes.number,
     provinceId: PropTypes.string,
     tip: PropTypes.number,
@@ -25,6 +29,7 @@ class Main extends Component {
     updateTip: PropTypes.func
   }
   static defaultProps = {
+    loaded: false,
     updateAmount: () => {},
     updateTip: () => {}
   }
@@ -201,24 +206,25 @@ class Main extends Component {
   }
 
   render() {
-    const { tip, updateTip } = this.props
+    const { loaded, tip, updateTip } = this.props
     const { tipModalVisible, province } = this.state
     return (
       <Fragment>
         <AppContainer>
-          {province && (
-            <Fragment>
-              <RowsContainer
-                rows={[
-                  this.renderExcTaxPriceRow(),
-                  this.renderTaxesRow(),
-                  tip > 0 && this.renderTipRow(),
-                  this.renderTotalPriceRow()
-                ]}
-              />
-              {!tip && this.renderAddTipButton()}
-            </Fragment>
-          )}
+          {loaded &&
+            province && (
+              <Fragment>
+                <RowsContainer
+                  rows={[
+                    this.renderExcTaxPriceRow(),
+                    this.renderTaxesRow(),
+                    tip > 0 && this.renderTipRow(),
+                    this.renderTotalPriceRow()
+                  ]}
+                />
+                {!tip && this.renderAddTipButton()}
+              </Fragment>
+            )}
         </AppContainer>
 
         <TipDialog
@@ -245,4 +251,17 @@ const styles = StyleSheet.create({
   }
 })
 
-export default injectIntl(Main)
+export default compose(
+  withState(
+    pick([
+      'loaded',
+      'amount',
+      'provinceId',
+      'tip',
+      'taxDetailsVisible',
+      'convertedPriceVisible'
+    ]),
+    pick(['updateAmount', 'updateTip'])
+  ),
+  injectIntl
+)(Main)
