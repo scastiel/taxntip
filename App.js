@@ -78,15 +78,6 @@ export default class App extends React.Component {
     await this.setState({ ...savedState })
   }
 
-  async saveStateInStorage(state) {
-    // ;['amount', 'tip', 'taxDetailsVisible', 'convertedPriceVisible'].forEach(
-    //   key => {
-    //     AsyncStorage.setItem(key, JSON.stringify(state[key]))
-    //   }
-    // )
-    // AsyncStorage.setItem('provinceId', JSON.stringify(state.province.id))
-  }
-
   async loadAssets() {
     await Promise.all([
       this.loadLocale(),
@@ -111,6 +102,12 @@ export default class App extends React.Component {
       assetsLoaded,
       locale
     } = this.state
+
+    const valueUpdater = name => value => {
+      this.setState({ [name]: value })
+      AsyncStorage.setItem(name, JSON.stringify(value))
+    }
+
     return assetsLoaded ? (
       <PaperProvider theme={theme}>
         <IntlProvider locale={locale} messages={messages[locale]}>
@@ -121,33 +118,11 @@ export default class App extends React.Component {
               tip,
               taxDetailsVisible,
               convertedPriceVisible,
-              updateProvince: provinceId => {
-                this.setState({ provinceId })
-                AsyncStorage.setItem('provinceId', JSON.stringify(provinceId))
-              },
-              updateAmount: amount => {
-                this.setState({ amount })
-                AsyncStorage.setItem('amount', JSON.stringify(amount))
-              },
-              updateTip: tip => {
-                this.setState({ tip })
-                AsyncStorage.setItem('tip', JSON.stringify(tip))
-              },
-              updateTaxDetailsVisible: taxDetailsVisible => {
-                this.setState({ taxDetailsVisible })
-                AsyncStorage.setItem(
-                  'taxDetailsVisible',
-                  JSON.stringify(taxDetailsVisible)
-                )
-              },
-              updateConvertedPriceVisible: convertedPriceVisible => {
-                this.setState({ convertedPriceVisible })
-                AsyncStorage.setItem(
-                  'convertedPriceVisible',
-                  JSON.stringify(convertedPriceVisible)
-                )
-              },
-              saveStateInStorage: state => this.saveStateInStorage(state)
+              updateProvince: valueUpdater('provinceId'),
+              updateAmount: valueUpdater('amount'),
+              updateTip: valueUpdater('tip'),
+              updateTaxDetailsVisible: valueUpdater('taxDetailsVisible'),
+              updateConvertedPriceVisible: valueUpdater('convertedPriceVisible')
             }}
           />
         </IntlProvider>

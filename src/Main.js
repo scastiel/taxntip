@@ -21,7 +21,6 @@ class Main extends Component {
     tip: PropTypes.number,
     taxDetailsVisible: PropTypes.bool,
     convertedPriceVisible: PropTypes.bool,
-    saveStateInStorage: PropTypes.func,
     updateAmount: PropTypes.func,
     updateTip: PropTypes.func
   }
@@ -31,7 +30,6 @@ class Main extends Component {
     tip: 0,
     taxDetailsVisible: false,
     convertedPriceVisible: false,
-    saveStateInStorage: () => {},
     updateAmount: () => {},
     updateTip: () => {}
   }
@@ -205,16 +203,6 @@ class Main extends Component {
         {intl.formatMessage({ id: 'addTip' })}
       </Button>
     )
-  }
-
-  async updateProvince(province) {
-    const { saveStateInStorage } = this.props
-    await this.setState({
-      province,
-      provinceModalVisible: false,
-      loading: false
-    })
-    await saveStateInStorage(this.state)
   }
 
   render() {

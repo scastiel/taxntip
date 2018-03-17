@@ -29,7 +29,8 @@
     "test": "node node_modules/jest/bin/jest.js",
     "exp:publish": "exp publish",
     "exp:build:ios": "exp build:ios",
-    "exp:build:android": "exp build:android"
+    "exp:build:android": "exp build:android",
+    "lint": "eslint src"
   },
   "jest": {
     "preset": "jest-expo"
@@ -51,14 +52,10 @@
     "singleQuote": true
   },
   "babel": {
-    "presets": [
-      "expo"
-    ],
+    "presets": ["expo"],
     "env": {
       "development": {
-        "plugins": [
-          "transform-react-jsx-source"
-        ]
+        "plugins": ["transform-react-jsx-source"]
       }
     }
   },
