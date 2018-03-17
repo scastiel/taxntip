@@ -10,7 +10,8 @@ export default {
     addTip: 'Add a tip',
     chooseTip: 'Choose a tip',
     noTip: 'No tip',
-    province: 'Province'
+    province: 'Province',
+    settings: 'Settings'
   },
   fr: {
     title: 'Taxes et pourboires',
@@ -23,6 +24,7 @@ export default {
     addTip: 'Ajouter un pourboire',
     chooseTip: 'Choisir un pourboire',
     noTip: 'Aucun pourboire',
-    province: 'Province'
+    province: 'Province',
+    settings: 'Préférences'
   }
 }
