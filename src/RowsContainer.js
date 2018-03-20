@@ -16,10 +16,9 @@ class RowsContainer extends Component {
     return (
       <View style={styles.paperContainer}>
         <Paper style={styles.paper}>
-          {rows.filter(Boolean).reduce((acc, comp) => (
-            <Fragment>
-              {acc}
-              <Divider />
+          {rows.filter(Boolean).map((comp, index) => (
+            <Fragment key={index}>
+              {index > 0 && <Divider />}
               {comp}
             </Fragment>
           ))}

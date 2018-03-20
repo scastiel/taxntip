@@ -25,6 +25,7 @@ class Main extends Component {
     tip: PropTypes.number,
     taxDetailsVisible: PropTypes.bool,
     convertedPriceVisible: PropTypes.bool,
+    conversionCurrency: PropTypes.string,
     updateAmount: PropTypes.func,
     updateTip: PropTypes.func
   }
@@ -176,12 +177,13 @@ class Main extends Component {
   }
 
   renderTotalPriceRow() {
-    const { intl, convertedPriceVisible } = this.props
+    const { intl, convertedPriceVisible, conversionCurrency } = this.props
     return (
       <AppRow label={intl.formatMessage({ id: 'totalPrice' })}>
         <AmountTextWithConversion
           amountStyle={styles.amount}
           convertedAmountStyle={[styles.convertedPrice]}
+          currency={conversionCurrency}
           amount={this.getNetPrice()}
           showConvertedAmount={convertedPriceVisible}
         />
@@ -259,7 +261,8 @@ export default compose(
       'provinceId',
       'tip',
       'taxDetailsVisible',
-      'convertedPriceVisible'
+      'convertedPriceVisible',
+      'conversionCurrency'
     ]),
     pick(['updateAmount', 'updateTip'])
   ),

@@ -19,7 +19,8 @@ export class Provider extends Component {
     provinceId: 'QC',
     tip: 0,
     taxDetailsVisible: true,
-    convertedPriceVisible: true
+    convertedPriceVisible: true,
+    conversionCurrency: 'EUR'
   }
 
   componentWillMount() {
@@ -55,7 +56,8 @@ export class Provider extends Component {
     updateAmount: this.valueUpdater('amount'),
     updateTip: this.valueUpdater('tip'),
     updateTaxDetailsVisible: this.valueUpdater('taxDetailsVisible'),
-    updateConvertedPriceVisible: this.valueUpdater('convertedPriceVisible')
+    updateConvertedPriceVisible: this.valueUpdater('convertedPriceVisible'),
+    updateConversionCurrency: this.valueUpdater('conversionCurrency')
   }
 
   render() {

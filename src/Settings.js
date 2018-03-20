@@ -11,27 +11,33 @@ import { TouchableRipple, Switch, Caption } from 'react-native-paper'
 import { compose } from 'recompose'
 import { withState } from './StateContext'
 import { pick } from 'ramda'
+import CurrencyDialog from './CurrencyDialog'
+import currencies from './currencies'
 
 class Settings extends Component {
   static propTypes = {
     intl: intlShape.isRequired,
     provinceId: PropTypes.string,
     updateProvince: PropTypes.func,
+    conversionCurrency: PropTypes.string,
     taxDetailsVisible: PropTypes.bool,
     updateTaxDetailsVisible: PropTypes.func,
     convertedPriceVisible: PropTypes.bool,
-    updateConvertedPriceVisible: PropTypes.func
+    updateConvertedPriceVisible: PropTypes.func,
+    updateConversionCurrency: PropTypes.func
   }
   static propTypes = {
     updateProvince: () => {},
     updateTaxDetailsVisible: () => {},
-    updateConvertedPriceVisible: () => {}
+    updateConvertedPriceVisible: () => {},
+    updateConversionCurrency: () => {}
   }
 
   constructor(props) {
     super(props)
     this.state = {
-      provinceModalVisible: false
+      provinceModalVisible: false,
+      conversionCurrencyModalVisible: false
     }
   }
 
@@ -39,10 +45,20 @@ class Settings extends Component {
     return provinces.find(province => province.id === id)
   }
 
+  getCurrency(currencyId) {
+    return currencies.find(currency => currency.id === currencyId)
+  }
+
   updateProvince(province) {
     const { updateProvince } = this.props
     updateProvince(province.id)
     this.setState({ provinceModalVisible: false })
+  }
+
+  updateConversionCurrency(currency) {
+    const { updateConversionCurrency } = this.props
+    updateConversionCurrency(currency.id)
+    this.setState({ conversionCurrencyModalVisible: false })
   }
 
   renderProvinceRow() {
@@ -54,6 +70,19 @@ class Settings extends Component {
         onPress={() => this.setState({ provinceModalVisible: true })}
       >
         <Caption>{province && province.name[intl.locale]}</Caption>
+      </AppRow>
+    )
+  }
+
+  renderConversionCurrencyRow() {
+    const { conversionCurrency, intl } = this.props
+    const currency = conversionCurrency && this.getCurrency(conversionCurrency)
+    return (
+      <AppRow
+        label={intl.formatMessage({ id: 'conversionCurrency' })}
+        onPress={() => this.setState({ conversionCurrencyModalVisible: true })}
+      >
+        <Caption>{currency && currency.name[intl.locale]}</Caption>
       </AppRow>
     )
   }
@@ -103,16 +132,18 @@ class Settings extends Component {
   }
 
   render() {
-    const { provinceId } = this.props
-    const { provinceModalVisible } = this.state
+    const { provinceId, conversionCurrency, convertedPriceVisible } = this.props
+    const { provinceModalVisible, conversionCurrencyModalVisible } = this.state
     const province = provinceId && this.getProvince(provinceId)
+    const currency = conversionCurrency && this.getCurrency(conversionCurrency)
     return (
       <AppContainer>
         <RowsContainer
           rows={[
             this.renderProvinceRow(),
             this.renderTaxesDetailRow(),
-            this.renderConvertedPriceRow()
+            this.renderConvertedPriceRow(),
+            convertedPriceVisible && this.renderConversionCurrencyRow()
           ]}
         />
         <ProvinceDialog
@@ -120,6 +151,12 @@ class Settings extends Component {
           provinces={provinces}
           visible={provinceModalVisible}
           onDismiss={province => this.updateProvince(province)}
+        />
+        <CurrencyDialog
+          selectedCurrency={currency}
+          currencies={currencies}
+          visible={conversionCurrencyModalVisible}
+          onDismiss={currency => this.updateConversionCurrency(currency)}
         />
       </AppContainer>
     )
@@ -129,11 +166,17 @@ class Settings extends Component {
 export default compose(
   injectIntl,
   withState(
-    pick(['provinceId', 'taxDetailsVisible', 'convertedPriceVisible']),
+    pick([
+      'provinceId',
+      'taxDetailsVisible',
+      'convertedPriceVisible',
+      'conversionCurrency'
+    ]),
     pick([
       'updateProvince',
       'updateTaxDetailsVisible',
-      'updateConvertedPriceVisible'
+      'updateConvertedPriceVisible',
+      'updateConversionCurrency'
     ])
   )
 )(Settings)

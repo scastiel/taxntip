@@ -40,20 +40,20 @@ export default class App extends React.Component {
       locale.startsWith('fr-') ||
       locale.startsWith('fr_')
     ) {
-      return 'fr'
+      return 'fr-CA'
     }
-    return 'en'
+    return 'en-CA'
   }
 
   async loadLocale() {
     const locale = await this.getLocale()
     const hasIntl = global.Intl
     if (!hasIntl) global.Intl = require('intl')
-    if (locale === 'fr') {
-      if (!hasIntl) require('intl/locale-data/jsonp/fr.js')
+    if (locale === 'fr-CA') {
+      if (!hasIntl) require('intl/locale-data/jsonp/fr-CA')
       addLocaleData(require('react-intl/locale-data/fr'))
     } else {
-      if (!hasIntl) require('intl/locale-data/jsonp/en.js')
+      if (!hasIntl) require('intl/locale-data/jsonp/en-CA')
       addLocaleData(require('react-intl/locale-data/en'))
     }
     await this.setState({ locale })

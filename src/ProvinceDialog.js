@@ -1,15 +1,7 @@
 import React, { Component } from 'react'
-import { StyleSheet, View } from 'react-native'
 import PropTypes from 'prop-types'
 import { injectIntl, intlShape } from 'react-intl'
-import {
-  TouchableRipple,
-  Paragraph,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  RadioButton
-} from 'react-native-paper'
+import SelectionDialog from './SelectionDialog'
 
 const provinceShape = PropTypes.shape({
   name: PropTypes.objectOf(PropTypes.string).isRequired,
@@ -36,48 +28,17 @@ class ProvinceDialog extends Component {
   render() {
     const { selectedProvince, provinces, onDismiss, visible, intl } = this.props
     return (
-      <Dialog
-        style={styles.dialog}
+      <SelectionDialog
         visible={visible}
-        onDismiss={() => onDismiss(selectedProvince)}
-      >
-        <DialogTitle>{intl.formatMessage({ id: 'province' })}</DialogTitle>
-        <DialogContent>
-          {provinces.map(province => (
-            <TouchableRipple
-              key={province.id}
-              onPress={() => onDismiss(province)}
-            >
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>
-                  {province.name[intl.locale]}
-                </Paragraph>
-                <RadioButton
-                  value={province.id}
-                  checked={selectedProvince === province}
-                />
-              </View>
-            </TouchableRipple>
-          ))}
-        </DialogContent>
-      </Dialog>
+        selectedItem={selectedProvince}
+        items={provinces}
+        onDismiss={onDismiss}
+        renderItem={province => province.name[intl.locale]}
+        getItemId={province => province.id}
+        title={intl.formatMessage({ id: 'province' })}
+      />
     )
   }
 }
-
-const styles = StyleSheet.create({
-  dialog: {
-    alignSelf: 'center',
-    width: '90%',
-    maxWidth: 400
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  label: {
-    flex: 1
-  }
-})
 
 export default injectIntl(ProvinceDialog)
