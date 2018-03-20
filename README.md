@@ -12,13 +12,12 @@
 * [x] Add a tip (possible percentages: 15, 20, 25 %)
 * [x] Select any of Canada’s provinces
 * [x] Get the detail of taxes (provincial and from Canada)
-* [x] Price conversion to Euros (the conversion rate is refreshed every day)
-* [x] Available locales: French, English (Canada)
+* [x] Price conversion to EUR, USD, GBP, CHF, JPY (the conversion rate is refreshed every day)
+* [x] Available locales: French (Canada), English (Canada)
 
 ## Future
 
 * [ ] Specify other tip percentages
-* [ ] Specify other conversion than Euros
 * [ ] Add content: when should I leave a tip?
 
 ## Technical stack
@@ -30,7 +29,7 @@ The application is built with:
 * [React Native Paper](https://callstack.github.io/react-native-paper/)
 * [Expo](https://expo.io/)
 
-The conversion to Euros is made with [Open Exchange Rates](https://openexchangerates.org/)’s API, going through a [small proxy API](https://github.com/scastiel/taxntip-api) to limit the number of requests.
+The conversion to other currencies is made with [Open Exchange Rates](https://openexchangerates.org/)’s API, going through a [small proxy API](https://github.com/scastiel/taxntip-api) to limit the number of requests.
 
 ## Contribute
 
