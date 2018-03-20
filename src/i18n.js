@@ -14,7 +14,7 @@ export default {
     settings: 'Settings',
     showTaxDetails: 'Show taxes detail',
     showConvertedPrice: 'Show price converted',
-    conversionCurrency: 'Currency'
+    conversionCurrency: 'Currency for conversion'
   },
   'fr-CA': {
     title: 'Taxes et pourboires',
@@ -31,6 +31,6 @@ export default {
     settings: 'Préférences',
     showTaxDetails: 'Afficher le détail des taxes',
     showConvertedPrice: 'Afficher le prix converti',
-    conversionCurrency: 'Monnaie'
+    conversionCurrency: 'Monnaie pour conversion'
   }
 }
