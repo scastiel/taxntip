@@ -7,44 +7,48 @@ import AmountText from './AmountText'
 import AmountInput from './AmountInput'
 import TipDialog from './TipDialog'
 import provinces from './provinces'
-import ProvinceDialog from './ProvinceDialog'
 import AmountTextWithConversion from './AmountTextWithConversion'
-import AppToolbar from './AppToolbar'
 import AppContainer from './AppContainer'
 import AppRow from './AppRow'
 import RowsContainer from './RowsContainer'
 import { fontProps } from './style'
+import { withState } from './StateContext'
+import { pick } from 'ramda'
+import { compose } from 'recompose'
 
 class Main extends Component {
   static propTypes = {
     intl: intlShape.isRequired,
+    loaded: PropTypes.bool,
     amount: PropTypes.number,
     provinceId: PropTypes.string,
     tip: PropTypes.number,
     taxDetailsVisible: PropTypes.bool,
-    showConvertedPrice: PropTypes.bool,
-    saveStateInStorage: PropTypes.func
+    convertedPriceVisible: PropTypes.bool,
+    conversionCurrency: PropTypes.string,
+    updateAmount: PropTypes.func,
+    updateTip: PropTypes.func
   }
   static defaultProps = {
-    amount: 30,
-    provinceId: null,
-    tip: 0,
-    taxDetailsVisible: true,
-    showConvertedPrice: true,
-    saveStateInStorage: () => {}
+    loaded: false,
+    updateAmount: () => {},
+    updateTip: () => {}
   }
 
   constructor(props) {
     super(props)
-    this.state = {
-      amount: props.amount,
+    this.state = this.getStateFromProps(props)
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState(this.getStateFromProps(newProps))
+  }
+
+  getStateFromProps(props) {
+    return {
       editMode: false,
       tipModalVisible: false,
-      provinceModalVisible: props.provinceId === null,
-      tip: props.tip,
-      province: props.provinceId ? this.getProvince(props.provinceId) : null,
-      taxDetailsVisible: props.taxDetailsVisible,
-      showConvertedPrice: props.showConvertedPrice
+      province: props.provinceId ? this.getProvince(props.provinceId) : null
     }
   }
 
@@ -58,12 +62,14 @@ class Main extends Component {
   }
 
   getProvinceTaxes() {
-    const { amount, province } = this.state
+    const { amount } = this.props
+    const { province } = this.state
     return amount * province.tax_province / 100
   }
 
   getCanadaTaxes() {
-    const { amount, province } = this.state
+    const { amount } = this.props
+    const { province } = this.state
     return amount * province.tax_canada / 100
   }
 
@@ -72,22 +78,18 @@ class Main extends Component {
   }
 
   getNetPrice() {
-    return this.state.amount + this.getTaxes() + this.getTip()
+    const { amount } = this.props
+    return amount + this.getTaxes() + this.getTip()
   }
 
   getTip() {
-    return this.state.tip * this.state.amount
-  }
-
-  async updateAmount(amount) {
-    const { saveStateInStorage } = this.props
-    await this.setState({ amount, editMode: false })
-    await saveStateInStorage(this.state)
+    const { amount, tip } = this.props
+    return tip * amount
   }
 
   renderExcTaxPriceRow() {
-    const { editMode, amount } = this.state
-    const { intl } = this.props
+    const { editMode } = this.state
+    const { intl, amount, updateAmount } = this.props
     return (
       <AppRow
         label={intl.formatMessage({ id: 'withoutTaxesPrice' })}
@@ -98,7 +100,7 @@ class Main extends Component {
             <AmountInput
               innerRef={ref => ref && ref.focus()}
               amount={amount}
-              onBlur={amount => this.updateAmount(amount)}
+              onBlur={amount => updateAmount(amount)}
             />
           </Fragment>
         ) : (
@@ -109,18 +111,12 @@ class Main extends Component {
   }
 
   renderTaxesRow() {
-    const { taxDetailsVisible, province } = this.state
-    const { saveStateInStorage } = this.props
+    const { province } = this.state
+    const { taxDetailsVisible } = this.props
 
     return (
       <AppRow
         isSecondary
-        onPress={async () => {
-          await this.setState({
-            taxDetailsVisible: !taxDetailsVisible
-          })
-          await saveStateInStorage(this.state)
-        }}
         label={this.formatPercentageLabel('taxes', this.getTaxesPercentage())}
         detailRows={
           taxDetailsVisible
@@ -163,7 +159,8 @@ class Main extends Component {
   }
 
   renderTipRow() {
-    const { editMode, tip } = this.state
+    const { tip } = this.props
+    const { editMode } = this.state
     return (
       <AppRow
         label={this.formatPercentageLabel('tip', tip * 100)}
@@ -180,23 +177,15 @@ class Main extends Component {
   }
 
   renderTotalPriceRow() {
-    const { showConvertedPrice } = this.state
-    const { intl, saveStateInStorage } = this.props
+    const { intl, convertedPriceVisible, conversionCurrency } = this.props
     return (
-      <AppRow
-        label={intl.formatMessage({ id: 'totalPrice' })}
-        onPress={async () => {
-          await this.setState({
-            showConvertedPrice: !showConvertedPrice
-          })
-          await saveStateInStorage(this.state)
-        }}
-      >
+      <AppRow label={intl.formatMessage({ id: 'totalPrice' })}>
         <AmountTextWithConversion
           amountStyle={styles.amount}
           convertedAmountStyle={[styles.convertedPrice]}
+          currency={conversionCurrency}
           amount={this.getNetPrice()}
-          showConvertedAmount={showConvertedPrice}
+          showConvertedAmount={convertedPriceVisible}
         />
       </AppRow>
     )
@@ -218,58 +207,32 @@ class Main extends Component {
     )
   }
 
-  async updateProvince(province) {
-    const { saveStateInStorage } = this.props
-    await this.setState({
-      province,
-      provinceModalVisible: false,
-      loading: false
-    })
-    await saveStateInStorage(this.state)
-  }
-
-  async updateTip(tip) {
-    const { saveStateInStorage } = this.props
-    await this.setState({ tip, tipModalVisible: false })
-    await saveStateInStorage(this.state)
-  }
-
   render() {
-    const { tip, tipModalVisible, province, provinceModalVisible } = this.state
+    const { loaded, tip, updateTip } = this.props
+    const { tipModalVisible, province } = this.state
     return (
       <Fragment>
         <AppContainer>
-          {province && (
-            <Fragment>
-              <AppToolbar
-                province={province}
-                onProvinceButtonPressed={() =>
-                  this.setState({ provinceModalVisible: true })
-                }
-              />
-              <RowsContainer
-                rows={[
-                  this.renderExcTaxPriceRow(),
-                  this.renderTaxesRow(),
-                  tip > 0 && this.renderTipRow(),
-                  this.renderTotalPriceRow()
-                ]}
-              />
-              {!tip && this.renderAddTipButton()}
-            </Fragment>
-          )}
+          {loaded &&
+            province && (
+              <Fragment>
+                <RowsContainer
+                  rows={[
+                    this.renderExcTaxPriceRow(),
+                    this.renderTaxesRow(),
+                    tip > 0 && this.renderTipRow(),
+                    this.renderTotalPriceRow()
+                  ]}
+                />
+                {!tip && this.renderAddTipButton()}
+              </Fragment>
+            )}
         </AppContainer>
 
         <TipDialog
           tip={tip}
           visible={tipModalVisible}
-          onDismiss={tip => this.updateTip(tip)}
-        />
-        <ProvinceDialog
-          selectedProvince={province}
-          provinces={provinces}
-          visible={provinceModalVisible}
-          onDismiss={province => this.updateProvince(province)}
+          onDismiss={tip => updateTip(tip)}
         />
       </Fragment>
     )
@@ -290,4 +253,18 @@ const styles = StyleSheet.create({
   }
 })
 
-export default injectIntl(Main)
+export default compose(
+  withState(
+    pick([
+      'loaded',
+      'amount',
+      'provinceId',
+      'tip',
+      'taxDetailsVisible',
+      'convertedPriceVisible',
+      'conversionCurrency'
+    ]),
+    pick(['updateAmount', 'updateTip'])
+  ),
+  injectIntl
+)(Main)

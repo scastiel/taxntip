@@ -3,18 +3,16 @@ import PropTypes from 'prop-types'
 import { injectIntl, intlShape } from 'react-intl'
 import SelectionDialog from './SelectionDialog'
 
-const provinceShape = PropTypes.shape({
-  name: PropTypes.objectOf(PropTypes.string).isRequired,
-  type: PropTypes.string.isRequired,
-  tax_province: PropTypes.number.isRequired,
-  tax_canada: PropTypes.number.isRequired
+const currencyShape = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  name: PropTypes.objectOf(PropTypes.string).isRequired
 })
 
-class ProvinceDialog extends Component {
+class CurrencyDialog extends Component {
   static propTypes = {
     visible: PropTypes.bool,
-    selectedProvince: provinceShape,
-    provinces: PropTypes.arrayOf(provinceShape),
+    selectedCurrency: currencyShape,
+    currencies: PropTypes.arrayOf(currencyShape),
     onDismiss: PropTypes.func,
     intl: intlShape.isRequired
   }
@@ -26,19 +24,25 @@ class ProvinceDialog extends Component {
   }
 
   render() {
-    const { selectedProvince, provinces, onDismiss, visible, intl } = this.props
+    const {
+      selectedCurrency,
+      currencies,
+      onDismiss,
+      visible,
+      intl
+    } = this.props
     return (
       <SelectionDialog
         visible={visible}
-        selectedItem={selectedProvince}
-        items={provinces}
+        selectedItem={selectedCurrency}
+        items={currencies}
         onDismiss={onDismiss}
         renderItem={province => province.name[intl.locale]}
         getItemId={province => province.id}
-        title={intl.formatMessage({ id: 'province' })}
+        title={intl.formatMessage({ id: 'conversionCurrency' })}
       />
     )
   }
 }
 
-export default injectIntl(ProvinceDialog)
+export default injectIntl(CurrencyDialog)

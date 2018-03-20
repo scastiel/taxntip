@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Text, View, StyleSheet } from 'react-native'
 import { injectIntl, intlShape } from 'react-intl'
@@ -12,7 +12,7 @@ class AmountText extends Component {
     isSecondary: PropTypes.bool
   }
   static defaultProps = {
-    currency: '$',
+    currency: 'CAD',
     isSecondary: false
   }
 
@@ -22,38 +22,17 @@ class AmountText extends Component {
       amount === null
         ? '-'
         : intl.formatNumber(amount, {
+            style: 'currency',
+            currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })
 
-    const amountComp = (
-      <Text style={[styles.amount, isSecondary && styles.secondary, style]}>
-        {formattedAmount}
-      </Text>
-    )
-
-    const currencyComp = (
-      <View style={{ width: 20, height: 20 }}>
-        <Text style={[styles.currency, isSecondary && styles.secondary, style]}>
-          {' '}
-          {currency}
-        </Text>
-      </View>
-    )
-
     return (
-      <View style={{ flexDirection: 'row' }}>
-        {intl.locale === 'fr' ? (
-          <Fragment>
-            {amountComp}
-            {currencyComp}
-          </Fragment>
-        ) : (
-          <Fragment>
-            {currencyComp}
-            {amountComp}
-          </Fragment>
-        )}
+      <View style={styles.amountText}>
+        <Text style={[styles.amount, isSecondary && styles.secondary, style]}>
+          {formattedAmount}
+        </Text>
       </View>
     )
   }
@@ -66,13 +45,21 @@ const amountStyle = {
 }
 
 export const styles = StyleSheet.create({
+  amountText: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'flex-end'
+  },
   amount: {
     ...amountStyle,
-    textAlign: 'right'
+    textAlign: 'right',
+    flex: 1
   },
   currency: {
     ...amountStyle,
-    textAlign: 'center'
+    flex: 1,
+    textAlign: 'left',
+    width: 50
   },
   secondary: {
     color: 'grey'

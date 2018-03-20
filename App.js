@@ -1,5 +1,5 @@
 import React from 'react'
-import { StatusBar, AsyncStorage } from 'react-native'
+import { StatusBar } from 'react-native'
 import {
   DefaultTheme,
   Provider as PaperProvider,
@@ -8,7 +8,8 @@ import {
 import { ScreenOrientation, Font, AppLoading, Asset, Util } from 'expo'
 import { IntlProvider, addLocaleData } from 'react-intl'
 import messages from './src/i18n'
-import Main from './src/Main'
+import RootNavigator from './src/RootNavigator'
+import { Provider as StateProvider } from './src/StateContext'
 
 const theme = {
   ...DefaultTheme,
@@ -39,58 +40,28 @@ export default class App extends React.Component {
       locale.startsWith('fr-') ||
       locale.startsWith('fr_')
     ) {
-      return 'fr'
+      return 'fr-CA'
     }
-    return 'en'
+    return 'en-CA'
   }
 
   async loadLocale() {
     const locale = await this.getLocale()
     const hasIntl = global.Intl
     if (!hasIntl) global.Intl = require('intl')
-    if (locale === 'fr') {
-      if (!hasIntl) require('intl/locale-data/jsonp/fr.js')
+    if (locale === 'fr-CA') {
+      if (!hasIntl) require('intl/locale-data/jsonp/fr-CA')
       addLocaleData(require('react-intl/locale-data/fr'))
     } else {
-      if (!hasIntl) require('intl/locale-data/jsonp/en.js')
+      if (!hasIntl) require('intl/locale-data/jsonp/en-CA')
       addLocaleData(require('react-intl/locale-data/en'))
     }
     await this.setState({ locale })
   }
 
-  async loadStateFromStorage() {
-    const savedState = (await Promise.all(
-      [
-        'amount',
-        'provinceId',
-        'tip',
-        'taxDetailsVisible',
-        'showConvertedPrice'
-      ].map(async key => {
-        const value = await AsyncStorage.getItem(key)
-        return { key, value: value ? JSON.parse(value) : null }
-      })
-    )).reduce(
-      (acc, { key, value }) =>
-        value === null ? acc : { ...acc, [key]: value },
-      {}
-    )
-    await this.setState({ savedState })
-  }
-
-  async saveStateInStorage(state) {
-    ;['amount', 'tip', 'taxDetailsVisible', 'showConvertedPrice'].forEach(
-      key => {
-        AsyncStorage.setItem(key, JSON.stringify(state[key]))
-      }
-    )
-    AsyncStorage.setItem('provinceId', JSON.stringify(state.province.id))
-  }
-
   async loadAssets() {
     await Promise.all([
       this.loadLocale(),
-      this.loadStateFromStorage(),
       Asset.fromModule(require('./assets/background.jpg')).downloadAsync(),
       Font.loadAsync({
         Roboto: require('./assets/roboto/Roboto-Regular.ttf'),
@@ -102,14 +73,14 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { savedState, assetsLoaded, locale } = this.state
+    const { assetsLoaded, locale } = this.state
+
     return assetsLoaded ? (
       <PaperProvider theme={theme}>
         <IntlProvider locale={locale} messages={messages[locale]}>
-          <Main
-            {...savedState}
-            saveStateInStorage={state => this.saveStateInStorage(state)}
-          />
+          <StateProvider>
+            <RootNavigator />
+          </StateProvider>
         </IntlProvider>
       </PaperProvider>
     ) : (
