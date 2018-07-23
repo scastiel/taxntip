@@ -40,8 +40,7 @@ class AmountText extends Component {
 
 const amountStyle = {
   fontFamily: 'RobotoMedium',
-  fontSize: 18,
-  letterSpacing: 1
+  fontSize: 18
 }
 
 export const styles = StyleSheet.create({
@@ -52,8 +51,7 @@ export const styles = StyleSheet.create({
   },
   amount: {
     ...amountStyle,
-    textAlign: 'right',
-    flex: 1
+    textAlign: 'right'
   },
   currency: {
     ...amountStyle,

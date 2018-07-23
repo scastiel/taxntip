@@ -59,7 +59,8 @@ class AmountTextWithConversion extends Component {
 }
 
 const viewStyle = {
-  flex: 1,
+  flexGrow: 1,
+  flexShrink: 0,
   flexDirection: 'column',
   alignItems: 'flex-end'
 }
@@ -67,7 +68,7 @@ const viewStyle = {
 const styles = StyleSheet.create({
   viewWithConvertedAmount: {
     ...viewStyle,
-    height: 40
+    height: 45
   },
   viewWithoutConvertedAmount: {
     ...viewStyle

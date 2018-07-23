@@ -52,7 +52,7 @@ class AppRow extends Component {
             {label}
           </Paragraph>
         )}
-        {children}
+        <View>{children}</View>
       </Fragment>
     )
 
